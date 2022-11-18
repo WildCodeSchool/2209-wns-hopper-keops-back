@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  api:
+    build: ./
+    ports:
+      - 4000:4000
+    # Définit une connection direct entre les deux dossiers
+    volumes:
+      - ./src/:/app/src
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: secret

@@ -1,6 +1,6 @@
 import dataSource from "../utils";
-import { Arg, Mutation, Query, Resolver } from "type-graphql";
-import { User, UserInput } from "../entity/User";
+import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
+import { UpdateUserInput, User, UserInput } from "../entity/User";
 
 const repository = dataSource.getRepository(User);
 
@@ -21,16 +21,36 @@ export class UsersResolver {
   }
 
   @Query(() => User)
-  async readUser(@Arg("id") id: string): Promise<User | null> {
+  async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
     return user === null ? null : user;
   }
 
-  // @Mutation(() => User)
-  // async updateUser(
-  //   @Arg("data", () => UserInput) data: UserInput
-  // ): Promise<User> {
-  //   const user = await repository.update(data);
-  //   return user;
-  // }
+  @Mutation(() => User)
+  async updateUser(
+    @Arg("data", () => UserInput) data: UserInput, @Arg("id", () => ID) id: string
+  ): Promise<User | null> {
+    const user = await repository.findOne({ where: { id }});
+    if (user === null){
+      return null
+    } else {
+      return await repository.save({...user,...data});
+      // function test(): any {
+      //   for (const key of Object.keys(data)) {
+      //     user?[key]:data.key;
+      //   }
+      // }
+      // return await repository.save(test());
+    }
+  }
+
+  @Mutation(() => User)
+  async deleteUser(@Arg("id", () => ID) id: string): Promise<User | null> {
+    const user = await repository.findOne({ where: { id } });
+    if (user === null) {
+      return null;
+    } else {
+      return await repository.remove(user);
+    }
+  }
 }

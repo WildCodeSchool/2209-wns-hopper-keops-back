@@ -1,4 +1,5 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { IsEmail, Length } from "class-validator";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 // Création et gestion du schema de donnée de wilder TypeORM
@@ -9,13 +10,48 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 export class User {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
-  id: number;
+  id: string;
+
+  @Column({ default: "User" })
+  @Field()
+  name: string;
 
   @Column()
   @Field()
-  name: string;
+  password: string;
+
+  @Column({ unique: true })
+  @Field()
+  email: string;
+
+  @Column({ default: new Date() })
+  @Field()
+  createdAt: Date;
+
+  @Column({ default: new Date() })
+  @Field()
+  updatedAt: Date;
+
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  updatedBy: string;
+
+  @Column({ default: false })
+  @Field()
+  isAdmin: boolean;
 }
 
 // Class de d'écriture TypeGraphQL,
 // plus besoin de TypeORM et des champs nécéssaire à la lecture
 // Ajout de la validation des champs avec class-validator
+
+@InputType()
+export class UserInput {
+  @Field()
+  @Length(8, 60)
+  password: string;
+
+  @Field()
+  @IsEmail()
+  email: string;
+}

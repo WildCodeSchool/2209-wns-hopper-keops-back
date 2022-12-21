@@ -23,14 +23,16 @@ export class UsersResolver {
   @Query(() => User)
   async readUser(@Arg("id") id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
-    return user === null ? null : user;
+    return user === null ? null : user  ;
   }
 
-  // @Mutation(() => User)
-  // async updateUser(
-  //   @Arg("data", () => UserInput) data: UserInput
-  // ): Promise<User> {
-  //   const user = await repository.update(data);
-  //   return user;
-  // }
+  @Mutation(() => User  )
+  async updateUser(
+    @Arg("data", () => UserInput) data: UserInput
+  ): Promise<any> {
+    console.log(data)
+    // const oneUser = await repository.findOne({ where: { data.id } });
+    // const user = await repository.update(data);
+    // return user;
+  }
 }

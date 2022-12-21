@@ -2,6 +2,7 @@ import dataSource from "../utils";
 import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
+import {sign} from 'jsonwebtoken';
 
 const repository = dataSource.getRepository(User);
 
@@ -16,10 +17,10 @@ export class UsersResolver {
     return user;
   }
 
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => String, { nullable: true })
   async signin(
     @Arg("data", () => UserInput) data: UserInput
-  ): Promise<User | null> {
+  ): Promise<string | null> {
     try {
       const user = await repository.findOne({ where: { email: data.email } });
       console.log("user: ", user);
@@ -34,7 +35,8 @@ export class UsersResolver {
       console.log("decrypted password: ", decryptedPassword);
       if (decryptedPassword) {
         console.log("user find and pass decrypt");
-        return user;
+        const token = sign({ userId: user.id}, 'supersecret');
+        return token;
       } else {
         console.log("user find but pass not decrypt");
         return null;

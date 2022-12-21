@@ -59,10 +59,13 @@ export class UserInput {
 @InputType()
 export class UpdateUserInput {
   @Field()
+  @Length(8, 60)
+  password: string;
+
+  @Field()
   @IsEmail()
   email: string;
 
   @Field()
-  @Length(2, 60)
-  name: string;
+  id: string;
 }

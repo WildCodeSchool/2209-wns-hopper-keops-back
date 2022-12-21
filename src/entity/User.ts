@@ -55,3 +55,14 @@ export class UserInput {
   @IsEmail()
   email: string;
 }
+
+@InputType()
+export class UpdateUserInput {
+  @Field()
+  @IsEmail()
+  email: string;
+
+  @Field()
+  @Length(2, 60)
+  name: string;
+}

@@ -1,8 +1,8 @@
 import dataSource from "../utils";
-import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 const repository = dataSource.getRepository(User);
 
@@ -19,7 +19,8 @@ export class UsersResolver {
 
   @Mutation(() => String, { nullable: true })
   async signin(
-    @Arg('email') email: string, @Arg('password') password: string
+    @Arg("email") email: string,
+    @Arg("password") password: string
   ): Promise<string | null> {
     try {
       const user = await repository.findOne({ where: { email } });
@@ -28,14 +29,11 @@ export class UsersResolver {
         console.log("user null");
         return null;
       }
-      const decryptedPassword = await argon2.verify(
-        user.password,
-        password
-      );
+      const decryptedPassword = await argon2.verify(user.password, password);
       console.log("decrypted password: ", decryptedPassword);
       if (decryptedPassword) {
         console.log("user find and pass decrypt");
-        const token = jwt.sign({ userId: user.id}, 'supersecret');
+        const token = jwt.sign({ userId: user.id }, "supersecret");
         return token;
       } else {
         console.log("user find but pass not decrypt");
@@ -54,18 +52,26 @@ export class UsersResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Arg("token") token: string): Promise<User | null> {
+  async me(@Ctx() context: { token: null | string }): Promise<User | null> {
+    const token = context.token;
+
+    if (token === null) {
+      return null;
+    }
+
     try {
-      const decodedToken: {userId: string} = jwt.verify(token, 'supersecret') as any;
+      const decodedToken: { userId: string } = jwt.verify(
+        token,
+        "supersecret"
+      ) as any;
       const userId = decodedToken.userId;
       const user = await repository.findOne({ where: { id: userId } });
 
-      if (user != null){
+      if (user != null) {
         return user;
       } else {
         return null;
       }
-
     } catch {
       return null;
     }

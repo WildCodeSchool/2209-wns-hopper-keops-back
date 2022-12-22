@@ -2,7 +2,7 @@ import dataSource from "../utils";
 import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
-import {sign} from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 const repository = dataSource.getRepository(User);
 
@@ -19,10 +19,10 @@ export class UsersResolver {
 
   @Mutation(() => String, { nullable: true })
   async signin(
-    @Arg("data", () => UserInput) data: UserInput
+    @Arg('email') email: string, @Arg('password') password: string
   ): Promise<string | null> {
     try {
-      const user = await repository.findOne({ where: { email: data.email } });
+      const user = await repository.findOne({ where: { email } });
       console.log("user: ", user);
       if (user === null) {
         console.log("user null");
@@ -30,12 +30,12 @@ export class UsersResolver {
       }
       const decryptedPassword = await argon2.verify(
         user.password,
-        data.password
+        password
       );
       console.log("decrypted password: ", decryptedPassword);
       if (decryptedPassword) {
         console.log("user find and pass decrypt");
-        const token = sign({ userId: user.id}, 'supersecret');
+        const token = jwt.sign({ userId: user.id}, 'supersecret');
         return token;
       } else {
         console.log("user find but pass not decrypt");
@@ -51,6 +51,24 @@ export class UsersResolver {
   async readAllUsers(): Promise<User[]> {
     const user = await repository.find({});
     return user;
+  }
+
+  @Query(() => User, { nullable: true })
+  async me(@Arg("token") token: string): Promise<User | null> {
+    try {
+      const decodedToken: {userId: string} = jwt.verify(token, 'supersecret') as any;
+      const userId = decodedToken.userId;
+      const user = await repository.findOne({ where: { id: userId } });
+
+      if (user != null){
+        return user;
+      } else {
+        return null;
+      }
+
+    } catch {
+      return null;
+    }
   }
 
   @Query(() => User, { nullable: true })

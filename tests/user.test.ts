@@ -31,7 +31,7 @@ beforeAll(async () => {
 
   // Création du schema
   schema = await buildSchema({
-    resolvers: resolversArr,
+    resolvers: [UsersResolver],
   });
 });
 

@@ -7,7 +7,11 @@ services:
       - 4000:4000
     # Définit une connection direct entre les deux dossiers
     volumes:
+      # autoreload des changements des dossier src et test de notre pc vers ceux du conteneur docker
       - ./src/:/app/src
+      - ./tests/:/app/tests
+    # Décommenter pour executer les tests plustôt que l'api
+    command: npm test ./tests
   db:
     image: postgres
     environment:

@@ -31,7 +31,7 @@ beforeAll(async () => {
 
   // Création du schema
   schema = await buildSchema({
-    resolvers: [UsersResolver],
+    resolvers: resolversArr,
   });
 });
 
@@ -52,12 +52,17 @@ describe("Users", () => {
       console.log(result);
       expect(result.data?.createUser).toBeTruthy();
     });
-    it("Create user in db", async () => {
+    it("Create user in DB", async () => {
+      const user = await dataSource
+        .getRepository(User)
+        .findOne({ where: { email: "test@gmail.com" } });
+      expect(user).toBeTruthy();
+    });
+    it("The password in DB is hashed", async () => {
       const user = await dataSource
         .getRepository(User)
         .findOne({ where: { email: "test@gmail.com" } });
       expect(user?.password === "supersecret").toBe(false);
-      expect(user).toBeTruthy();
     });
     it("Prevent using the same email", async () => {
       const mutation = print(createUser);

@@ -5,7 +5,7 @@ import { User } from "./entity/User";
 const dataSource = new DataSource({
   type: "postgres",
   // l'adresse est celle de l'image de la base de donnée cette adresse est routé par docker
-  host: "db",
+  host: process.env.DB_HOST,
   port: 5432,
   username: "postgres",
   password: "secret",

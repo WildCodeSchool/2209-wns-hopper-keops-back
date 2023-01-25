@@ -1,21 +1,13 @@
-// function test(user, data) {
-//   const array = Object.keys(data);
-//   for (const key of array) {
-//     user[key] = data[key];
-//   }
-//   return user;
-// }
-
-// let user = {
-//   id: 1,
-//   pass: "Password",
-//   test1: null,
-//   test2: 3,
-// };
-
-// let data = {
-//   id: 3,
-//   pass: "Notword",
-// };
-
-// console.log(test(user, data));
+export function mergeObject(
+  object1: { [key: string | number]: unknown },
+  object2: { [key: string | number]: unknown }
+): object {
+  const newObject: { [key: string | number]: unknown } = {};
+  for (const key of Object.keys(object1)) {
+    newObject[key] = object1[key];
+  }
+  for (const key of Object.keys(object2)) {
+    newObject[key] = object2[key];
+  }
+  return newObject;
+}

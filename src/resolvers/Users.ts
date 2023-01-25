@@ -1,5 +1,5 @@
 import dataSource from "../utils";
-import { Arg, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
@@ -52,7 +52,13 @@ export class UsersResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Arg("token") token: string): Promise<User | null> {
+  async me(@Ctx() context: { token: null | string }): Promise<User | null> {
+    const token = context.token;
+
+    if (token === null) {
+      return null;
+    }
+
     try {
       const decodedToken: { userId: string } = jwt.verify(
         token,

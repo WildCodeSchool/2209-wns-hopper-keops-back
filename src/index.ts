@@ -15,12 +15,27 @@ async function bootstrap(): Promise<void> {
   // Create the GraphQL server
   const server = new ApolloServer({
     schema,
+    cors: true,
+    context: ({ req }) => {
+      const authorization = req?.headers?.authorization;
+
+      if (!authorization) {
+        return { token: null };
+      }
+      // Add the user to the context
+
+      // remove Bearer from jwt to keep only the token
+      const token = authorization.split(" ").pop();
+
+      return { token };
+    },
   });
 
   try {
     // Connexion à la base de donnée (Attente de la connexion avant de passer à la suite)
     await dataSource.initialize();
     console.log("DB connected");
+
     //   Démarrage du server
     const { url } = await server.listen(PORT);
     console.log(`Server is running, GraphQL Playground available at ${url}`);

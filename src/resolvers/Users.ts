@@ -33,7 +33,11 @@ export class UsersResolver {
       console.log("decrypted password: ", decryptedPassword);
       if (decryptedPassword) {
         console.log("user find and pass decrypt");
-        const token = jwt.sign({ userId: user.id }, "supersecret");
+        const secret = process.env.JWT_SECRET;
+        if (secret === undefined) {
+          return null;
+        }
+        const token = jwt.sign({ userId: user.id }, secret);
         return token;
       } else {
         console.log("user find but pass not decrypt");
@@ -47,7 +51,11 @@ export class UsersResolver {
 
   @Query(() => [User])
   async readAllUsers(): Promise<User[]> {
-    const user = await repository.find({});
+    const user = await repository.find({
+      relations: {
+        userToChallenges: true,
+      },
+    });
     return user;
   }
 

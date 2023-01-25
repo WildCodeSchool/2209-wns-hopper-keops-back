@@ -16,6 +16,7 @@
     "apollo-server": "^3.10.3",
     "argon2": "^0.30.2",
     "class-validator": "^0.13.2",
+    "dotenv": "^16.0.3",
     "graphql": "^15.8.0",
     "graphql-upload": "^13.0.0",
     "jsonwebtoken": "^8.5.1",

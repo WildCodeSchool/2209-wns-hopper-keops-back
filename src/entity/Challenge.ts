@@ -1,6 +1,6 @@
-import { IsEmail, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 
 // Création et gestion du schema de donnée de wilder TypeORM
@@ -8,44 +8,51 @@ import { UserToChallenge } from "./UserToChallenge";
 
 @Entity()
 @ObjectType()
-export class User {
+export class Challenge {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;
 
-  @Column({ default: "User" })
+  @Column()
   @Field()
-  name: string;
+  length: number;
 
   @Column()
   @Field()
-  password: string;
+  start_date: Date;
 
-  @Column({ unique: true })
+  // A modifier pour renvoyer la date de fin du challenge
   @Field()
-  email: string;
+  get end_date(): Date {
+    return new Date();
+  }
+
+  @Column({ default: false })
+  @Field()
+  is_in_progress: boolean;
 
   @Column({ default: new Date() })
   @Field()
   createdAt: Date;
 
+  // User
+  @Column()
+  @Field(() => User)
+  createdBy: User;
+
   @Column({ default: new Date() })
   @Field()
   updatedAt: Date;
 
-  @Column({ default: false })
-  @Field()
-  isAdmin: boolean;
+  // User
+  @Column({ nullable: true })
+  @Field({ nullable: true })
+  updatedBy: User;
 
-  @Column({ default: false })
-  @Field()
-  isCompany: boolean;
-
-  @Column({ default: 0 })
-  @Field()
-  score: number;
-
-  @OneToMany(() => UserToChallenge, (userToChallenge) => userToChallenge.user)
+  @OneToMany(
+    () => UserToChallenge,
+    (userToChallenge) => userToChallenge.challenge
+  )
   @Field(() => [UserToChallenge])
   userToChallenges: UserToChallenge[];
 }
@@ -55,23 +62,13 @@ export class User {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
-export class UserInput {
+export class ChallengeInput {
   @Field()
-  @Length(8, 60)
-  password: string;
+  length: number;
 
   @Field()
-  @IsEmail()
-  email: string;
-}
-
-@InputType()
-export class UpdateUserInput {
-  @Field()
-  @Length(2, 60)
-  name: string;
+  start_date: Date;
 
   @Field()
-  @IsEmail()
-  email: string;
+  createdBy: string;
 }

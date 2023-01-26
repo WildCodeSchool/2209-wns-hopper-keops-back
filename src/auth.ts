@@ -1,25 +1,42 @@
 import jwt from "jsonwebtoken";
 import { AuthChecker } from "type-graphql";
 import { User } from "./entity/User";
+import dataSource from "./utils";
 
-interface IContext {
-  token: string | null;
-  user: User;
-}
+const repository = dataSource.getRepository(User);
 
-export const customAuthChecker: AuthChecker<IContext> = async (
+export const authChecker: AuthChecker<{token: string | null}> = async (
   { root, args, context, info },
-  roles
+  roles,
 ) => {
+  // here we can read the user from context
+  // and check his permission in the db against the `roles` argument
+  // that comes from the `@Authorized` decorator, eg. ["ADMIN", "MODERATOR"]
   const token = context.token;
-  if (token === null || token === "") {
-    return false;
-  }
-  try {
-    const secret = process.env.JWT_SECRET;
-    if (secret === undefined) {
-      return null;
+
+    if (token === null) {
+      return false;
     }
-    const decodedToken = jwt.verify(token, secret);
-  } catch {}
+    
+    try {
+      if (process.env.JWT_SECRET === undefined ) {
+        return false
+      }
+      
+      const decodedToken: { userId: string } = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+      ) as any;
+      const userId = decodedToken.userId;
+      const user = await repository.findOne({ where: { id: userId } });
+
+      if (user != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+
 };

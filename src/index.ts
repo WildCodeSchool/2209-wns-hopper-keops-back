@@ -1,20 +1,18 @@
 import "reflect-metadata";
-import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import dataSource from "./utils";
 import { ApolloServer } from "apollo-server";
 import { UsersResolver } from "./resolvers/Users";
 import { buildSchema } from "type-graphql";
 import { ChallengesResolver } from "./resolvers/Challenges";
-import { customAuthChecker } from "./auth";
+import { authChecker } from "./auth";
 
-dotenv.config();
 const PORT = 4000;
 
 async function bootstrap(): Promise<void> {
   // ... Building schema here
   const schema = await buildSchema({
     resolvers: [UsersResolver, ChallengesResolver],
-    authChecker: customAuthChecker,
+    authChecker
   });
 
   // Create the GraphQL server

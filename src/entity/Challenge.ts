@@ -1,5 +1,5 @@
 import { Field, ID, InputType, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from "typeorm";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 
@@ -18,7 +18,7 @@ export class Challenge {
   length: number;
 
   @Column()
-  @Field()
+  @Field(() => Date)
   start_date: Date;
 
   // A modifier pour renvoyer la date de fin du challenge
@@ -36,17 +36,17 @@ export class Challenge {
   createdAt: Date;
 
   // User
-  @Column()
+  @ManyToOne(() => User)
   @Field(() => User)
   createdBy: User;
 
   @Column({ default: new Date() })
-  @Field()
+  @Field(() => Date)
   updatedAt: Date;
 
   // User
-  @Column({ nullable: true })
-  @Field({ nullable: true })
+  @ManyToOne(() => User)
+  @Field(() => User, { nullable: true })
   updatedBy: User;
 
   @OneToMany(
@@ -66,9 +66,6 @@ export class ChallengeInput {
   @Field()
   length: number;
 
-  @Field()
+  @Field(() => Date)
   start_date: Date;
-
-  @Field()
-  createdBy: string;
 }

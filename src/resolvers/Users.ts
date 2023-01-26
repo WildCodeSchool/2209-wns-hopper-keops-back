@@ -1,5 +1,5 @@
 import dataSource from "../utils";
-import { Arg, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
@@ -49,6 +49,7 @@ export class UsersResolver {
     }
   }
 
+  @Authorized()
   @Query(() => [User])
   async readAllUsers(): Promise<User[]> {
     const user = await repository.find({

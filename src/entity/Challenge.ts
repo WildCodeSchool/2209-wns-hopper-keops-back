@@ -1,5 +1,11 @@
 import { Field, ID, InputType, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+} from "typeorm";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 

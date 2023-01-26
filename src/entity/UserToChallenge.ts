@@ -1,5 +1,11 @@
 import { Field, ID, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  Index,
+} from "typeorm";
 import { Challenge } from "./Challenge";
 import { User } from "./User";
 
@@ -8,6 +14,8 @@ import { User } from "./User";
 
 @Entity()
 @ObjectType()
+// Check if userToChallenge is unique (one challenge for one user)
+@Index(["user", "challenge"], { unique: true })
 export class UserToChallenge {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
@@ -31,12 +39,7 @@ export class UserToChallenge {
 // Ajout de la validation des champs avec class-validator
 
 // @InputType()
-// export class UserInput {
+// export class UpdateUserToChallengeInput {
 //   @Field()
-//   @Length(8, 60)
-//   password: string;
-
-//   @Field()
-//   @IsEmail()
-//   email: string;
+//   isAccepted: boolean;
 // }

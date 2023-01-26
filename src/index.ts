@@ -5,14 +5,15 @@ import { UsersResolver } from "./resolvers/Users";
 import { buildSchema } from "type-graphql";
 import { ChallengesResolver } from "./resolvers/Challenges";
 import { authChecker } from "./auth";
+import { UserToChallengesResolver } from "./resolvers/UsersToChallenges";
 
 const PORT = 4000;
 
 async function bootstrap(): Promise<void> {
   // ... Building schema here
   const schema = await buildSchema({
-    resolvers: [UsersResolver, ChallengesResolver],
-    authChecker
+    resolvers: [UsersResolver, ChallengesResolver, UserToChallengesResolver],
+    authChecker,
   });
 
   // Create the GraphQL server

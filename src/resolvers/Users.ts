@@ -1,8 +1,17 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
+import { IContext } from "../auth";
 
 const repository = dataSource.getRepository(User);
 
@@ -33,6 +42,7 @@ export class UsersResolver {
       console.log("decrypted password: ", decryptedPassword);
       if (decryptedPassword) {
         console.log("user find and pass decrypt");
+
         const secret = process.env.JWT_SECRET;
         if (secret === undefined) {
           return null;
@@ -60,30 +70,10 @@ export class UsersResolver {
     return user;
   }
 
+  @Authorized()
   @Query(() => User, { nullable: true })
-  async me(@Ctx() context: { token: null | string }): Promise<User | null> {
-    const token = context.token;
-
-    if (token === null) {
-      return null;
-    }
-
-    try {
-      const decodedToken: { userId: string } = jwt.verify(
-        token,
-        "supersecret"
-      ) as any;
-      const userId = decodedToken.userId;
-      const user = await repository.findOne({ where: { id: userId } });
-
-      if (user != null) {
-        return user;
-      } else {
-        return null;
-      }
-    } catch {
-      return null;
-    }
+  async me(@Ctx() context: IContext): Promise<User | null> {
+    return context.me;
   }
 
   @Query(() => User, { nullable: true })

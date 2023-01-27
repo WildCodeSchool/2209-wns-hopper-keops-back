@@ -3,43 +3,32 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
+  // OneToMany,
   ManyToOne,
 } from "typeorm";
 import { User } from "./User";
-import { UserToChallenge } from "./UserToChallenge";
 
 // Création et gestion du schema de donnée de wilder TypeORM
 // Class de lecture TypeGraphQL
 
 @Entity()
 @ObjectType()
-export class Challenge {
+export class Action {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;
 
   @Column()
   @Field()
-  name: string;
+  title: string;
 
   @Column()
   @Field()
-  length: number;
+  description: string;
 
-  @Column()
-  @Field(() => Date)
-  start_date: Date;
-
-  // A modifier pour renvoyer la date de fin du challenge
+  @Column({ default: 100 })
   @Field()
-  get end_date(): Date {
-    return new Date();
-  }
-
-  @Column({ default: false })
-  @Field()
-  is_in_progress: boolean;
+  sucessValue: number;
 
   @Column({ default: new Date() })
   @Field()
@@ -59,12 +48,12 @@ export class Challenge {
   @Field(() => User, { nullable: true })
   updatedBy: User;
 
-  @OneToMany(
-    () => UserToChallenge,
-    (userToChallenge) => userToChallenge.challenge
-  )
-  @Field(() => [UserToChallenge])
-  userToChallenges: UserToChallenge[];
+  // @OneToMany(
+  //   () => UserToChallenge,
+  //   (userToChallenge) => userToChallenge.challenge
+  // )
+  // @Field(() => [UserToChallenge])
+  // userToChallenges: UserToChallenge[];
 }
 
 // Class de d'écriture TypeGraphQL,
@@ -72,14 +61,10 @@ export class Challenge {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
-export class ChallengeInput {
+export class ActionInput {
   @Field()
-  length: number;
+  title: string;
 
-  @Field(() => Date)
-  start_date: Date;
-
-  @Column()
   @Field()
-  name: string;
+  description: string;
 }

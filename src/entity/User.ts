@@ -1,6 +1,7 @@
 import { IsEmail, Length } from "class-validator";
 import { Field, ID, InputType, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { UserToChallenge } from "./UserToChallenge";
 
 // Création et gestion du schema de donnée de wilder TypeORM
 // Class de lecture TypeGraphQL
@@ -32,13 +33,21 @@ export class User {
   @Field()
   updatedAt: Date;
 
-  @Column({ nullable: true })
-  @Field({ nullable: true })
-  updatedBy: string;
-
   @Column({ default: false })
   @Field()
   isAdmin: boolean;
+
+  @Column({ default: false })
+  @Field()
+  isCompany: boolean;
+
+  @Column({ default: 0 })
+  @Field()
+  score: number;
+
+  @OneToMany(() => UserToChallenge, (userToChallenge) => userToChallenge.user)
+  @Field(() => [UserToChallenge])
+  userToChallenges: UserToChallenge[];
 }
 
 // Class de d'écriture TypeGraphQL,

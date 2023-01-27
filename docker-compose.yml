@@ -13,6 +13,8 @@ services:
     # Variables d'environnment
     environment:
       - DB_HOST=db
+    env_file:
+      - .env
   db:
     image: postgres
     environment:

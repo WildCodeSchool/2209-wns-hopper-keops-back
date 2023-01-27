@@ -1,5 +1,8 @@
 import { DataSource } from "typeorm";
+import { Action } from "./entity/Action";
+import { Challenge } from "./entity/Challenge";
 import { User } from "./entity/User";
+import { UserToChallenge } from "./entity/UserToChallenge";
 
 // Identifiant de connexion à la base de donnée et choix des tables à récupérer
 const dataSource = new DataSource({
@@ -14,7 +17,7 @@ const dataSource = new DataSource({
   synchronize: true,
   // option d'affichage des erreur et requête SQL dans la console
   logging: ["query", "error"],
-  entities: [User],
+  entities: [User, Challenge, UserToChallenge, Action],
 });
 
 export default dataSource;

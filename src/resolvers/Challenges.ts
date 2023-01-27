@@ -16,7 +16,11 @@ export class ChallengesResolver {
     @Arg("data", () => ChallengeInput) data: ChallengeInput,
     @Ctx() context: IContext
   ): Promise<Challenge> {
-    const challenge = await repository.save({ ...data, createdBy: context.me });
+    const challenge = await repository.save({
+      ...data,
+      createdBy: context.me,
+      createdAt: new Date(),
+    });
     return challenge;
   }
 

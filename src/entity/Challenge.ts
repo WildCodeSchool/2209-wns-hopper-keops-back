@@ -5,7 +5,10 @@ import {
   Column,
   OneToMany,
   ManyToOne,
+  ManyToMany,
 } from "typeorm";
+import { Action } from "./Action";
+import { ManyRelations } from "./common";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 
@@ -41,7 +44,7 @@ export class Challenge {
   @Field()
   is_in_progress: boolean;
 
-  @Column({ default: new Date() })
+  @Column()
   @Field()
   createdAt: Date;
 
@@ -53,6 +56,9 @@ export class Challenge {
   @Column({ default: null })
   @Field(() => Date, { nullable: true })
   updatedAt: Date;
+
+  @ManyToMany(() => Action, (action) => action.challenges)
+  actions: Action[];
 
   // User
   @ManyToOne(() => User)
@@ -72,6 +78,11 @@ export class Challenge {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
+export class ActionToChallengeInput {
+  actions: ManyRelations;
+}
+
+@InputType()
 export class ChallengeInput {
   @Field()
   length: number;
@@ -82,4 +93,7 @@ export class ChallengeInput {
   @Column()
   @Field()
   name: string;
+
+  createdAt: Date;
+  createdBy: User;
 }

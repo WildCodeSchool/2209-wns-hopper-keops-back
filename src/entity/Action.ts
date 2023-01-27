@@ -5,7 +5,11 @@ import {
   Column,
   // OneToMany,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
+import { Challenge } from "./Challenge";
+import { ManyRelations } from "./common";
 import { User } from "./User";
 
 // Création et gestion du schema de donnée de wilder TypeORM
@@ -48,6 +52,10 @@ export class Action {
   @Field(() => User, { nullable: true })
   updatedBy: User;
 
+  @ManyToMany(() => Challenge, (challenge) => challenge.actions)
+  @JoinTable()
+  challenges: Challenge[];
+
   // @OneToMany(
   //   () => UserToChallenge,
   //   (userToChallenge) => userToChallenge.challenge
@@ -61,10 +69,17 @@ export class Action {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
+export class ActionToChallengeInput {
+  challenges: ManyRelations;
+}
+
+@InputType()
 export class ActionInput {
   @Field()
   title: string;
 
   @Field()
   description: string;
+
+  createdBy: User;
 }

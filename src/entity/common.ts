@@ -9,7 +9,7 @@ export class ManyRelations {
   @Field(() => [ID])
   connects: string[];
 
-  // pourquoi on a un disconect ?
-  @Field(() => [ID])
-  disconnects: string[];
+  //   // pourquoi on a un disconect ?
+  //   @Field(() => [ID])
+  //   disconnects: string[];
 }

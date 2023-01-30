@@ -6,6 +6,7 @@ import {
   OneToMany,
   ManyToOne,
   ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { Action } from "./Action";
 import { ManyRelations } from "./common";
@@ -22,8 +23,8 @@ export class Challenge {
   @Field(() => ID)
   id: string;
 
-  @Column()
-  @Field()
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   name: string;
 
   @Column()
@@ -58,6 +59,8 @@ export class Challenge {
   updatedAt: Date;
 
   @ManyToMany(() => Action, (action) => action.challenges)
+  @Field(() => [Action])
+  @JoinTable()
   actions: Action[];
 
   // User

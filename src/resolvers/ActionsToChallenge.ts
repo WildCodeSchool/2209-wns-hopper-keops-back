@@ -1,27 +1,45 @@
 import dataSource from "../utils";
-import { Arg, Ctx, ID, Mutation, Resolver } from "type-graphql";
-import {
-  UpdateUserToChallengeInput,
-  UserToChallenge,
-} from "../entity/UserToChallenge";
-import { IContext } from "../auth";
+import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
+import { ActionToChallengeInput, Challenge } from "../entity/Challenge";
+import { Action } from "../entity/Action";
 
-const repository = dataSource.getRepository(UserToChallenge);
+const challengeRepository = dataSource.getRepository(Challenge);
+const actionRepository = dataSource.getRepository(Action);
 
 @Resolver()
-export class UserToChallengesResolver {
-  @Mutation(() => UserToChallenge)
-  async createUserToChallenge(
+export class ActionsToChallengesResolver {
+  @Authorized()
+  @Mutation(() => Challenge)
+  async createActionToChallenge(
     @Arg("challengeId", () => ID) challengeId: string,
-    @Arg("isAccepted") isAccepted: boolean,
-    @Ctx() context: IContext
-  ): Promise<UserToChallenge | null> {
-    const data: UpdateUserToChallengeInput = {
-      isAccepted,
-      user: context.me,
-      challenge: { id: challengeId },
+    @Arg("actionsId", () => [ID]) actionsId: string[]
+  ): Promise<Challenge | null> {
+    const data: ActionToChallengeInput = {
+      actions: {
+        connects: [...actionsId],
+      },
     };
-    const userToChallenge = await repository.save(data);
-    return userToChallenge;
+
+    const challenge = await challengeRepository.findOne({
+      where: { id: challengeId },
+      relations: { actions: true },
+    });
+
+    if (challenge === null) {
+      return null;
+    }
+
+    for (const actionId of data.actions.connects) {
+      const action = await actionRepository.findOne({
+        where: { id: actionId },
+      });
+      if (action !== null) {
+        if (!challenge.actions.some((action) => action.id === actionId)) {
+          challenge.actions.push(action);
+        }
+      }
+    }
+
+    return await challengeRepository.save(challenge);
   }
 }

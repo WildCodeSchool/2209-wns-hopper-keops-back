@@ -40,7 +40,7 @@ export class UserToChallenge {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
-export class UpdateUserToChallengeInput {
+export class UserToChallengeInput {
   @Field()
   isAccepted: boolean;
 
@@ -49,4 +49,19 @@ export class UpdateUserToChallengeInput {
 
   // non modifiable depuis le front
   user: User;
+}
+
+@InputType()
+export class UpdateUserToChallengeInput {
+  @Field()
+  isAccepted: boolean;
+
+  @Field(() => UniqueRelation)
+  challenge: UniqueRelation;
+
+  @Field(() => UniqueRelation)
+  user: UniqueRelation;
+
+  // non modifiable depuis le front
+  // user: User;
 }

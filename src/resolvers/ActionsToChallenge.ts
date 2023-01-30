@@ -13,19 +13,23 @@ export class ActionsToChallengesResolver {
     @Arg("challengeId", () => ID) challengeId: string,
     @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput
   ): Promise<Challenge | null> {
-    
-    const challenge = await challengeRepository.findOne({
-      where: { id: challengeId },
-      relations: { actions: true },
-    });
+    try {
+      const challenge = await challengeRepository.findOne({
+        where: { id: challengeId },
+        relations: { actions: true },
+      });
 
-    if (challenge === null) {
+      if (challenge === null) {
+        return null;
+      }
+
+      challenge.actions = data.actions;
+
+      console.log(challenge);
+
+      return await challengeRepository.save(challenge);
+    } catch {
       return null;
     }
-
-    challenge.actions = data.actions;
-
-    return await challengeRepository.save(challenge);
   }
-
 }

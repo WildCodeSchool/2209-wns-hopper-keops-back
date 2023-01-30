@@ -23,8 +23,8 @@ export class Challenge {
   @Field(() => ID)
   id: string;
 
-  @Column({ nullable: true })
-  @Field({ nullable: true })
+  @Column()
+  @Field()
   name: string;
 
   @Column()
@@ -58,7 +58,7 @@ export class Challenge {
   @Field(() => Date, { nullable: true })
   updatedAt: Date;
 
-  @ManyToMany(() => Action, (action) => action.challenges)
+  @ManyToMany(() => Action)
   @Field(() => [Action])
   @JoinTable()
   actions: Array<Partial<Action>>;

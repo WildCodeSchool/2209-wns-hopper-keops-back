@@ -8,7 +8,6 @@ import {
   ManyToMany,
 } from "typeorm";
 import { Challenge } from "./Challenge";
-// import { ManyRelations } from "./common";
 import { User } from "./User";
 
 // Création et gestion du schema de donnée de wilder TypeORM

@@ -1,5 +1,5 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver, ID } from "type-graphql";
 import { Challenge, ChallengeInput } from "../entity/Challenge";
 import { IContext } from "../auth";
 
@@ -33,4 +33,20 @@ export class ChallengesResolver {
     const challenge = await repository.save({ ...data, createdBy: context.me });
     return challenge;
   }
+
+  @Authorized()
+  @Query(() => Challenge)
+  async readOneChallenge(
+    @Arg("challengeID", () => ID) challengeID: string
+  ): Promise<Challenge | null> {
+    return await repository.findOneBy({id: challengeID});
+  }
+
+  @Authorized()
+  @Query(() => [Challenge])
+  async readAllChallenges():
+    Promise<Challenge[] | null> {
+    return await repository.find();
+  }
+
 }

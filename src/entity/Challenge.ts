@@ -9,7 +9,7 @@ import {
   JoinTable,
 } from "typeorm";
 import { Action } from "./Action";
-import { ManyRelations } from "./common";
+import { UniqueRelation } from "./common";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 
@@ -61,7 +61,7 @@ export class Challenge {
   @ManyToMany(() => Action, (action) => action.challenges)
   @Field(() => [Action])
   @JoinTable()
-  actions: Action[];
+  actions: Array<Partial<Action>>;
 
   // User
   @ManyToOne(() => User)
@@ -82,7 +82,8 @@ export class Challenge {
 
 @InputType()
 export class ActionToChallengeInput {
-  actions: ManyRelations;
+  @Field(() => [UniqueRelation])
+  actions: UniqueRelation[];
 }
 
 @InputType()

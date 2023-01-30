@@ -1,25 +1,19 @@
 import dataSource from "../utils";
 import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
 import { ActionToChallengeInput, Challenge } from "../entity/Challenge";
-import { Action } from "../entity/Action";
 
 const challengeRepository = dataSource.getRepository(Challenge);
-const actionRepository = dataSource.getRepository(Action);
 
 @Resolver()
 export class ActionsToChallengesResolver {
   @Authorized()
   @Mutation(() => Challenge)
-  async createActionToChallenge(
+  // A optimiser !!
+  async setActionToChallenge(
     @Arg("challengeId", () => ID) challengeId: string,
-    @Arg("actionsId", () => [ID]) actionsId: string[]
+    @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput
   ): Promise<Challenge | null> {
-    const data: ActionToChallengeInput = {
-      actions: {
-        connects: [...actionsId],
-      },
-    };
-
+    
     const challenge = await challengeRepository.findOne({
       where: { id: challengeId },
       relations: { actions: true },
@@ -29,17 +23,9 @@ export class ActionsToChallengesResolver {
       return null;
     }
 
-    challenge.actions = [];
-
-    for (const actionId of data.actions.connects) {
-      const action = await actionRepository.findOne({
-        where: { id: actionId },
-      });
-      if (action !== null) {
-        challenge.actions.push(action);
-      }
-    }
+    challenge.actions = data.actions;
 
     return await challengeRepository.save(challenge);
   }
+
 }

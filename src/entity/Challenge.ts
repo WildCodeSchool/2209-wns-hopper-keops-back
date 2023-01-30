@@ -58,10 +58,12 @@ export class Challenge {
   @Field(() => Date, { nullable: true })
   updatedAt: Date;
 
-  @ManyToMany(() => Action)
+  @ManyToMany(() => Action, (action) => action.challenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => [Action])
   @JoinTable()
-  actions: Array<Partial<Action>>;
+  actions: Action[];
 
   // User
   @ManyToOne(() => User)

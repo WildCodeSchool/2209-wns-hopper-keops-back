@@ -1,5 +1,13 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Query, Resolver, ID } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver,
+  ID,
+} from "type-graphql";
 import { Challenge, ChallengeInput } from "../entity/Challenge";
 import { IContext } from "../auth";
 
@@ -39,14 +47,12 @@ export class ChallengesResolver {
   async readOneChallenge(
     @Arg("challengeID", () => ID) challengeID: string
   ): Promise<Challenge | null> {
-    return await repository.findOneBy({id: challengeID});
+    return await repository.findOneBy({ id: challengeID });
   }
 
   @Authorized()
   @Query(() => [Challenge])
-  async readAllChallenges():
-    Promise<Challenge[] | null> {
-    return await repository.find();
+  async readAllChallenges(): Promise<Challenge[] | null> {
+    return await repository.find({ relations: ["actions"] });
   }
-
 }

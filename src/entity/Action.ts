@@ -22,7 +22,7 @@ export class Action {
 
   @Column()
   @Field()
-  title: string;
+  title?: string;
 
   @Column()
   @Field()

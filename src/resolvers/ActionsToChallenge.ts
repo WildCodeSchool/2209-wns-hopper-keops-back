@@ -1,8 +1,10 @@
 import dataSource from "../utils";
 import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
 import { ActionToChallengeInput, Challenge } from "../entity/Challenge";
+import { Action } from "../entity/Action";
 
 const challengeRepository = dataSource.getRepository(Challenge);
+const actionRepository = dataSource.getRepository(Action);
 
 @Resolver()
 export class ActionsToChallengesResolver {
@@ -16,19 +18,26 @@ export class ActionsToChallengesResolver {
     try {
       const challenge = await challengeRepository.findOne({
         where: { id: challengeId },
-        relations: { actions: true },
       });
 
       if (challenge === null) {
         return null;
       }
 
-      challenge.actions = data.actions;
+      challenge.actions = [];
 
-      console.log(challenge);
+      for (const actionId of data.actions) {
+        const action = await actionRepository.findOne({
+          where: { id: actionId.id },
+        });
 
+        if (action !== null) {
+          challenge.actions.push(action);
+        }
+      }
       return await challengeRepository.save(challenge);
-    } catch {
+    } catch (error) {
+      console.log(error);
       return null;
     }
   }

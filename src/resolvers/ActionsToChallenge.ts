@@ -29,14 +29,14 @@ export class ActionsToChallengesResolver {
       return null;
     }
 
+    challenge.actions = [];
+
     for (const actionId of data.actions.connects) {
       const action = await actionRepository.findOne({
         where: { id: actionId },
       });
       if (action !== null) {
-        if (!challenge.actions.some((action) => action.id === actionId)) {
-          challenge.actions.push(action);
-        }
+        challenge.actions.push(action);
       }
     }
 

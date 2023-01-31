@@ -31,8 +31,7 @@ export const setActionToChallengeFct = async (
       }
     }
     return await challengeRepository.save(challenge);
-  } catch (error) {
-    console.log(error);
+  } catch {
     return null;
   }
 };

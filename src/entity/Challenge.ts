@@ -96,9 +96,26 @@ export class ChallengeInput {
   @Field(() => Date)
   start_date: Date;
 
-  @Column()
   @Field()
   name: string;
+
+  createdAt: Date;
+  createdBy: User;
+}
+
+@InputType()
+export class CreateChallengeInput {
+  @Field()
+  length: number;
+
+  @Field(() => Date)
+  start_date: Date;
+
+  @Field()
+  name: string;
+
+  @Field(() => ActionToChallengeInput)
+  actions: ActionToChallengeInput;
 
   createdAt: Date;
   createdBy: User;

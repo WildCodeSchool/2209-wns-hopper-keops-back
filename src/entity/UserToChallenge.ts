@@ -54,3 +54,9 @@ export class UserToChallengeInput {
   // non modifiable depuis le front
   user: User;
 }
+
+@InputType()
+export class RemoveUserToChallengeInput {
+  @Field(() => ID)
+  userToChallengeId: string;
+}

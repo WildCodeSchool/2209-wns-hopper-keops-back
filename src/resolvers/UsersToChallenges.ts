@@ -1,12 +1,18 @@
 import dataSource from "../utils";
 import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import {
+  RemoveUserToChallengeInput,
   UserToChallenge,
   UserToChallengeInput,
 } from "../entity/UserToChallenge";
 import { IContext } from "../auth";
 
 const repository = dataSource.getRepository(UserToChallenge);
+
+// interface IRequestSuccess {
+//   success: boolean;
+//   error?: Error;
+// }
 
 @Resolver()
 export class UserToChallengesResolver {
@@ -40,6 +46,7 @@ export class UserToChallengesResolver {
     };
 
     try {
+      // ! how to update without get request before save ?
       // const userToChallengeSaved = await repository.update(
       //   { user: data.user, challenge: data.challenge },
       //   { isAccepted: data.isAccepted }
@@ -58,21 +65,22 @@ export class UserToChallengesResolver {
     }
   }
 
-  // @Authorized()
-  // @Mutation(() => UserToChallenge)
-  // async deleteUserToChallenge(
-  //   @Arg("challengeId", () => ID) challengeId: string,
-  //   @Arg("isAccepted") isAccepted: boolean,
-  //   @Arg("userId", () => ID) userId: string
-  // ): Promise<UserToChallenge | null> {
-  //   const data: UpdateUserToChallengeInput = {
-  //     isAccepted: false,
-  //     user: { ...user, id: userId },
-  //     challenge: { id: challengeId },
-  //   };
+  @Authorized()
+  @Mutation(() => UserToChallenge)
+  async deleteUserToChallenge(
+    @Arg("data", () => RemoveUserToChallengeInput)
+    data: RemoveUserToChallengeInput,
+    @Ctx() context: IContext
+  ): Promise<UserToChallenge | null> {
+    const userToChallengeToRemove = await repository.findOne({
+      where: { id: data.userToChallengeId },
+      relations: ["challenge.createdBy"],
+    });
 
-  //   const userToChallenge = await repository.remove({ where: { ...data } });
+    if (userToChallengeToRemove?.challenge?.createdBy.id === context.me.id) {
+      return await repository.remove(userToChallengeToRemove);
+    }
 
-  //   return userToChallenge;
-  // }
+    return null;
+  }
 }

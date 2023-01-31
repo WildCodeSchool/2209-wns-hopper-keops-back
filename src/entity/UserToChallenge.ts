@@ -26,11 +26,15 @@ export class UserToChallenge {
   @Field()
   isAccepted!: boolean;
 
-  @ManyToOne(() => User, (user) => user.userToChallenges)
+  @ManyToOne(() => User, (user) => user.userToChallenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => User)
   user!: User;
 
-  @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges)
+  @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => Challenge)
   challenge!: Challenge;
 }
@@ -49,19 +53,4 @@ export class UserToChallengeInput {
 
   // non modifiable depuis le front
   user: User;
-}
-
-@InputType()
-export class UpdateUserToChallengeInput {
-  @Field()
-  isAccepted: boolean;
-
-  @Field(() => UniqueRelation)
-  challenge: UniqueRelation;
-
-  @Field(() => UniqueRelation)
-  user: UniqueRelation;
-
-  // non modifiable depuis le front
-  // user: User;
 }

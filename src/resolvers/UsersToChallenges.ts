@@ -1,8 +1,8 @@
 import dataSource from "../utils";
-import { Arg, Ctx, ID, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import {
-  UpdateUserToChallengeInput,
   UserToChallenge,
+  UserToChallengeInput,
 } from "../entity/UserToChallenge";
 import { IContext } from "../auth";
 
@@ -10,43 +10,55 @@ const repository = dataSource.getRepository(UserToChallenge);
 
 @Resolver()
 export class UserToChallengesResolver {
+  @Authorized()
   @Mutation(() => UserToChallenge)
   async createUserToChallenge(
-    @Arg("challengeId", () => ID) challengeId: string,
-    @Arg("userId") userId: string
-  ): Promise<UserToChallenge | null> {
-    const data: UpdateUserToChallengeInput = {
-      user: { id: userId },
-      challenge: { id: challengeId },
-    };
-    const userToChallenge = await repository.save({
-      ...data,
-      isAccepted: false,
-    });
-    return userToChallenge;
-  }
-
-  @Mutation(() => UserToChallenge)
-  async updateUserToChallenge(
     @Arg("challengeId", () => ID) challengeId: string,
     @Arg("isAccepted") isAccepted: boolean,
     @Ctx() context: IContext
   ): Promise<UserToChallenge | null> {
-    const data: UpdateUserToChallengeInput = {
+    const data: UserToChallengeInput = {
       isAccepted,
       user: context.me,
       challenge: { id: challengeId },
     };
 
-    console.log("ME:", context.me);
+    return await repository.save(data);
+  }
+
+  @Authorized()
+  @Mutation(() => UserToChallenge)
+  async updateUserToChallenge(
+    @Arg("challengeId", () => ID) challengeId: string,
+    @Arg("isAccepted") isAccepted: boolean,
+    @Ctx() context: IContext
+  ): Promise<Partial<UserToChallenge> | null> {
+    const data: UserToChallengeInput = {
+      isAccepted,
+      user: context.me,
+      challenge: { id: challengeId },
+    };
 
     try {
-      return await repository.save({ ...data, isAccepted });
+      // const userToChallengeSaved = await repository.update(
+      //   { user: data.user, challenge: data.challenge },
+      //   { isAccepted: data.isAccepted }
+      // );
+      // return null;
+
+      const userToChallenge = await repository.findOne({
+        where: { user: data.user, challenge: data.challenge },
+      });
+      return await repository.save({
+        ...userToChallenge,
+        isAccepted: data.isAccepted,
+      });
     } catch {
       throw new Error("Une erreur s'est produite.");
     }
   }
 
+  // @Authorized()
   // @Mutation(() => UserToChallenge)
   // async deleteUserToChallenge(
   //   @Arg("challengeId", () => ID) challengeId: string,

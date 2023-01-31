@@ -16,6 +16,8 @@ services:
     env_file:
       - .env
   db:
+    ports:
+      - 3300:5432
     image: postgres
     environment:
       POSTGRES_PASSWORD: secret

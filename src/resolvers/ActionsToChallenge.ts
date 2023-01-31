@@ -1,27 +1,44 @@
 import dataSource from "../utils";
-import { Arg, Ctx, ID, Mutation, Resolver } from "type-graphql";
-import {
-  UpdateUserToChallengeInput,
-  UserToChallenge,
-} from "../entity/UserToChallenge";
-import { IContext } from "../auth";
+import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
+import { ActionToChallengeInput, Challenge } from "../entity/Challenge";
+import { Action } from "../entity/Action";
 
-const repository = dataSource.getRepository(UserToChallenge);
+const challengeRepository = dataSource.getRepository(Challenge);
+const actionRepository = dataSource.getRepository(Action);
 
 @Resolver()
-export class UserToChallengesResolver {
-  @Mutation(() => UserToChallenge)
-  async createUserToChallenge(
+export class ActionsToChallengesResolver {
+  @Authorized()
+  @Mutation(() => Challenge)
+  // A optimiser !!
+  async setActionToChallenge(
     @Arg("challengeId", () => ID) challengeId: string,
-    @Arg("isAccepted") isAccepted: boolean,
-    @Ctx() context: IContext
-  ): Promise<UserToChallenge | null> {
-    const data: UpdateUserToChallengeInput = {
-      isAccepted,
-      user: context.me,
-      challenge: { id: challengeId },
-    };
-    const userToChallenge = await repository.save(data);
-    return userToChallenge;
+    @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput
+  ): Promise<Challenge | null> {
+    try {
+      const challenge = await challengeRepository.findOne({
+        where: { id: challengeId },
+      });
+
+      if (challenge === null) {
+        return null;
+      }
+
+      challenge.actions = [];
+
+      for (const actionId of data.actions) {
+        const action = await actionRepository.findOne({
+          where: { id: actionId.id },
+        });
+
+        if (action !== null) {
+          challenge.actions.push(action);
+        }
+      }
+      return await challengeRepository.save(challenge);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

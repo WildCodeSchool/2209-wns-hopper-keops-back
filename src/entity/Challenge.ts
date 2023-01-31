@@ -6,9 +6,10 @@ import {
   OneToMany,
   ManyToOne,
   ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { Action } from "./Action";
-import { ManyRelations } from "./common";
+import { UniqueRelation } from "./common";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 
@@ -57,7 +58,11 @@ export class Challenge {
   @Field(() => Date, { nullable: true })
   updatedAt: Date;
 
-  @ManyToMany(() => Action, (action) => action.challenges)
+  @ManyToMany(() => Action, (action) => action.challenges, {
+    onUpdate: "CASCADE",
+  })
+  @Field(() => [Action])
+  @JoinTable()
   actions: Action[];
 
   // User
@@ -79,7 +84,8 @@ export class Challenge {
 
 @InputType()
 export class ActionToChallengeInput {
-  actions: ManyRelations;
+  @Field(() => [UniqueRelation])
+  actions: UniqueRelation[];
 }
 
 @InputType()

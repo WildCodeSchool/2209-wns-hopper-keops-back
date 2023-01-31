@@ -23,8 +23,8 @@ export class Challenge {
   @Field(() => ID)
   id: string;
 
-  @Column()
-  @Field()
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   name: string;
 
   @Column()

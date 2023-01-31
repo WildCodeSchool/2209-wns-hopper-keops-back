@@ -26,11 +26,15 @@ export class UserToChallenge {
   @Field()
   isAccepted!: boolean;
 
-  @ManyToOne(() => User, (user) => user.userToChallenges)
+  @ManyToOne(() => User, (user) => user.userToChallenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => User)
   user!: User;
 
-  @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges)
+  @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => Challenge)
   challenge!: Challenge;
 }
@@ -40,7 +44,7 @@ export class UserToChallenge {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
-export class UpdateUserToChallengeInput {
+export class UserToChallengeInput {
   @Field()
   isAccepted: boolean;
 
@@ -49,4 +53,10 @@ export class UpdateUserToChallengeInput {
 
   // non modifiable depuis le front
   user: User;
+}
+
+@InputType()
+export class RemoveUserToChallengeInput {
+  @Field(() => ID)
+  userToChallengeId: string;
 }

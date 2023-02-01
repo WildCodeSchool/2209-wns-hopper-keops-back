@@ -2,12 +2,14 @@ import dataSource from "../utils";
 import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
 import { ActionToChallengeInput, Challenge } from "../entity/Challenge";
 import { Action } from "../entity/Action";
+import { UniqueRelation } from "../entity/common";
+import { In } from "typeorm";
 
 const challengeRepository = dataSource.getRepository(Challenge);
 const actionRepository = dataSource.getRepository(Action);
 
 export const setActionToChallengeFct = async (
-  data: ActionToChallengeInput,
+  actions: UniqueRelation[],
   challengeId: string
 ): Promise<Challenge | null> => {
   try {
@@ -18,21 +20,21 @@ export const setActionToChallengeFct = async (
     if (challenge === null) {
       return null;
     }
+    const actionsToSave = await actionRepository.find({where: {id: In(actions.map(({id}) => id))}});
+    
+    // challenge.actions = [];
 
-    challenge.actions = [];
+    // for (const actionId of actions) {
+    //   const action = await actionRepository.findOne({
+    //     where: { id: actionId.id },
+    //   });
 
-    for (const actionId of data.actions) {
-      const action = await actionRepository.findOne({
-        where: { id: actionId.id },
-      });
-
-      if (action !== null) {
-        challenge.actions.push(action);
-      }
-    }
-    return await challengeRepository.save(challenge);
-  } catch (error) {
-    console.log(error);
+    //   if (action !== null) {
+    //     challenge.actions.push(action);
+    //   }
+    // }
+    return await challengeRepository.save({...challenge, actions: actionsToSave});
+  } catch {
     return null;
   }
 };
@@ -46,6 +48,6 @@ export class ActionsToChallengesResolver {
     @Arg("challengeId", () => ID) challengeId: string,
     @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput
   ): Promise<Challenge | null> {
-    return await setActionToChallengeFct(data, challengeId);
+    return await setActionToChallengeFct(data.actions, challengeId);
   }
 }

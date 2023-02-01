@@ -34,14 +34,16 @@ export class UsersResolver {
     try {
       const user = await repository.findOne({ where: { email } });
       console.log("user: ", user);
+      console.log("password: ", password);
       if (user === null) {
         console.log("user null");
         return null;
       }
-      const decryptedPassword = await argon2.verify(user.password, password);
-      console.log("decrypted password: ", decryptedPassword);
-      if (decryptedPassword) {
+      const hasMatched = await argon2.verify(user.password, password);
+      console.log("decrypted password: ", hasMatched);
+      if (hasMatched) {
         console.log("user find and pass decrypt");
+        console.log("Env", process.env);
 
         const secret = process.env.JWT_SECRET;
         if (secret === undefined) {

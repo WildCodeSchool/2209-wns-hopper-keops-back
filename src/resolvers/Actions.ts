@@ -1,5 +1,13 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Resolver, Query, ID } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Mutation,
+  Resolver,
+  Query,
+  ID,
+} from "type-graphql";
 import { Action, ActionInput } from "../entity/Action";
 import { IContext } from "../auth";
 
@@ -25,14 +33,12 @@ export class ActionsResolver {
   async readOneAction(
     @Arg("actionID", () => ID) actionID: string
   ): Promise<Action | null> {
-    return await repository.findOneBy({id: actionID});
+    return await repository.findOneBy({ id: actionID });
   }
 
   @Authorized()
   @Query(() => [Action])
-  async readAllActions():
-    Promise<Action[] | null> {
+  async readAllActions(): Promise<Action[] | null> {
     return await repository.find();
   }
-
 }

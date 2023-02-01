@@ -114,8 +114,8 @@ export class CreateChallengeInput {
   @Field()
   name: string;
 
-  @Field(() => ActionToChallengeInput)
-  actions: ActionToChallengeInput;
+  @Field(() => [UniqueRelation])
+  actions: UniqueRelation[];
 
   createdAt: Date;
   createdBy: User;

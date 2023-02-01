@@ -80,7 +80,9 @@ export class UsersResolver {
 
   @Query(() => User, { nullable: true })
   async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
+    console.log("Read One User ID: ", id);
     const user = await repository.findOne({ where: { id } });
+    console.log("Read One User: ", user);
     return user === null ? null : user;
   }
 

@@ -8,8 +8,13 @@ import { signin } from "./graphql/signin";
 import { User } from "../src/entity/User";
 import { authChecker } from "../src/auth";
 import { initializeTestDb } from "./testDb";
+import { me } from "./graphql/me";
+import { readUser } from "./graphql/readUser";
+import { readAllUsers } from "./graphql/readAllUsers";
 
 let schema: GraphQLSchema;
+let userToken: string;
+let userId: string;
 
 beforeAll(async () => {
   await initializeTestDb();
@@ -82,6 +87,22 @@ describe("Users", () => {
       });
       console.log(result);
       expect(result.data?.signin).toBeTruthy();
+      expect(typeof result.data?.signin).toBe("string");
+      userToken = result.data?.signin;
+    });
+    it("Return the current logged user", async () => {
+      const mutation = print(me);
+      const result = await graphql({
+        schema,
+        source: mutation,
+        contextValue: {
+          token: userToken,
+        },
+      });
+      console.log(result);
+      expect(result.data?.me).toBeTruthy();
+      expect(result.data?.me.email).toBe("test@gmail.com");
+      userId = result.data?.me.id;
     });
     it("Prevent using the wrong credentials", async () => {
       const mutation = print(signin);
@@ -95,6 +116,83 @@ describe("Users", () => {
       });
       console.log(result);
       expect(result.data?.signin).toBe(null);
+    });
+  });
+  describe("User me", () => {
+    it("Logout the user if the token is wrong or undfined", async () => {
+      const mutation = print(me);
+      const result = await graphql({
+        schema,
+        source: mutation,
+        contextValue: {
+          token: "WrongToken",
+        },
+      });
+      console.log(result);
+      expect(result.data?.me).toBe(null);
+    });
+  });
+  describe("User readUser", () => {
+    it("Returns a user for an id passed", async () => {
+      const mutation = print(readUser);
+      const result = await graphql({
+        schema,
+        source: mutation,
+        variableValues: {
+          readUserId: userId,
+        },
+      });
+      console.log(result);
+      expect(result.data?.readUser).toBeTruthy();
+    });
+    it("Return null if user is not in DB", async () => {
+      const mutation = print(readUser);
+      const result = await graphql({
+        schema,
+        source: mutation,
+
+        variableValues: {
+          readUserId: "2",
+        },
+      });
+      console.log(result);
+      expect(result.data?.readUser).toBeNull();
+    });
+  });
+  describe("User readAll", () => {
+    it("Returns an array of user and their relations to challenges", async () => {
+      const mutation = print(readAllUsers);
+      const result = await graphql({
+        schema,
+        source: mutation,
+        contextValue: {
+          token: userToken,
+        },
+      });
+      console.log(result.data?.readAllUsers);
+      expect(result.data?.readAllUsers).toBeTruthy();
+      expect(
+        result.data?.readAllUsers.every((user: User) => user.userToChallenges)
+      ).toBeTruthy();
+    });
+  });
+  describe("User update", () => {
+    it("Returns return data when user update", async () => {
+      expect(false).toBeTruthy();
+    });
+    it("Save the updated data in DB", async () => {
+      expect(false).toBeTruthy();
+    });
+    it("Prevent anyone else to update your data user", async () => {
+      expect(false).toBeTruthy();
+    });
+  });
+  describe("User delete", () => {
+    it("Returns return data when user is deleted", async () => {
+      expect(false).toBeTruthy();
+    });
+    it("Remove the deleted user in DB", async () => {
+      expect(false).toBeTruthy();
     });
   });
 });

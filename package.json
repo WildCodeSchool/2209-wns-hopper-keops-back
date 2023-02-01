@@ -7,7 +7,7 @@
     "docker": "docker compose up --build",
     "docker -f": "docker compose up --build --force-recreate",
     "test": "jest --watch",
-    "start": "ts-node-dev src/index.ts"
+    "start": "ts-node-dev --poll --respawn --transpile-only src/index.ts"
   },
   "author": "",
   "license": "ISC",

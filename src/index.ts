@@ -7,6 +7,7 @@ import { ChallengesResolver } from "./resolvers/Challenges";
 import { authChecker } from "./auth";
 import { UserToChallengesResolver } from "./resolvers/UsersToChallenges";
 import { ActionsResolver } from "./resolvers/Actions";
+import { ActionsToChallengesResolver } from "./resolvers/ActionsToChallenge";
 
 const PORT = 4000;
 
@@ -18,6 +19,7 @@ async function bootstrap(): Promise<void> {
       ChallengesResolver,
       UserToChallengesResolver,
       ActionsResolver,
+      ActionsToChallengesResolver,
     ],
     authChecker,
   });

@@ -5,7 +5,11 @@ import {
   Column,
   OneToMany,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
+import { Action } from "./Action";
+import { UniqueRelation } from "./common";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
 
@@ -19,8 +23,8 @@ export class Challenge {
   @Field(() => ID)
   id: string;
 
-  @Column()
-  @Field()
+  @Column({ nullable: true })
+  @Field({ nullable: true })
   name: string;
 
   @Column()
@@ -41,7 +45,7 @@ export class Challenge {
   @Field()
   is_in_progress: boolean;
 
-  @Column({ default: new Date() })
+  @Column()
   @Field()
   createdAt: Date;
 
@@ -53,6 +57,13 @@ export class Challenge {
   @Column({ default: null })
   @Field(() => Date, { nullable: true })
   updatedAt: Date;
+
+  @ManyToMany(() => Action, (action) => action.challenges, {
+    onUpdate: "CASCADE",
+  })
+  @Field(() => [Action])
+  @JoinTable()
+  actions: Action[];
 
   // User
   @ManyToOne(() => User)
@@ -72,6 +83,12 @@ export class Challenge {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
+export class ActionToChallengeInput {
+  @Field(() => [UniqueRelation])
+  actions: UniqueRelation[];
+}
+
+@InputType()
 export class ChallengeInput {
   @Field()
   length: number;
@@ -79,7 +96,27 @@ export class ChallengeInput {
   @Field(() => Date)
   start_date: Date;
 
-  @Column()
   @Field()
   name: string;
+
+  createdAt: Date;
+  createdBy: User;
+}
+
+@InputType()
+export class CreateChallengeInput {
+  @Field()
+  length: number;
+
+  @Field(() => Date)
+  start_date: Date;
+
+  @Field()
+  name: string;
+
+  @Field(() => [UniqueRelation])
+  actions: UniqueRelation[];
+
+  createdAt: Date;
+  createdBy: User;
 }

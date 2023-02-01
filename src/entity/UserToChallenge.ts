@@ -1,4 +1,4 @@
-import { Field, ID, ObjectType } from "type-graphql";
+import { Field, ID, InputType, ObjectType } from "type-graphql";
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +7,7 @@ import {
   Index,
 } from "typeorm";
 import { Challenge } from "./Challenge";
+import { UniqueRelation } from "./common";
 import { User } from "./User";
 
 // Création et gestion du schema de donnée de wilder TypeORM
@@ -25,11 +26,15 @@ export class UserToChallenge {
   @Field()
   isAccepted!: boolean;
 
-  @ManyToOne(() => User, (user) => user.userToChallenges)
+  @ManyToOne(() => User, (user) => user.userToChallenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => User)
   user!: User;
 
-  @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges)
+  @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges, {
+    onUpdate: "CASCADE",
+  })
   @Field(() => Challenge)
   challenge!: Challenge;
 }
@@ -38,8 +43,20 @@ export class UserToChallenge {
 // plus besoin de TypeORM et des champs nécéssaire à la lecture
 // Ajout de la validation des champs avec class-validator
 
-// @InputType()
-// export class UpdateUserToChallengeInput {
-//   @Field()
-//   isAccepted: boolean;
-// }
+@InputType()
+export class UserToChallengeInput {
+  @Field()
+  isAccepted: boolean;
+
+  @Field(() => UniqueRelation)
+  challenge: UniqueRelation;
+
+  // non modifiable depuis le front
+  user: User;
+}
+
+@InputType()
+export class RemoveUserToChallengeInput {
+  @Field(() => ID)
+  userToChallengeId: string;
+}

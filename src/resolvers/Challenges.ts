@@ -1,7 +1,16 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
-import { Challenge, ChallengeInput } from "../entity/Challenge";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver,
+  ID,
+} from "type-graphql";
+import { Challenge, ChallengeInput, CreateChallengeInput } from "../entity/Challenge";
 import { IContext } from "../auth";
+import { setActionToChallengeFct } from "./ActionsToChallenge";
 
 // Import de l'entity UTC ✓
 // Création d'un challenge
@@ -13,11 +22,19 @@ export class ChallengesResolver {
   @Authorized()
   @Mutation(() => Challenge)
   async createChallenge(
-    @Arg("data", () => ChallengeInput) data: ChallengeInput,
+    @Arg("data", () => CreateChallengeInput) data: CreateChallengeInput,
     @Ctx() context: IContext
-  ): Promise<Challenge> {
-    const challenge = await repository.save({ ...data, createdBy: context.me });
-    return challenge;
+  ): Promise<Challenge | null> {
+    try {
+    const challenge = await repository.save({
+      length: data.length, start_date: data.start_date, name: data.name,
+      createdBy: context.me,
+      createdAt: new Date(),
+    });
+    return await setActionToChallengeFct(data.actions, challenge.id);
+    } catch {
+      return null;
+    }
   }
 
   @Authorized()
@@ -28,5 +45,19 @@ export class ChallengesResolver {
   ): Promise<Challenge> {
     const challenge = await repository.save({ ...data, createdBy: context.me });
     return challenge;
+  }
+
+  @Authorized()
+  @Query(() => Challenge)
+  async readOneChallenge(
+    @Arg("challengeID", () => ID) challengeID: string
+  ): Promise<Challenge | null> {
+    return await repository.findOneBy({ id: challengeID });
+  }
+
+  @Authorized()
+  @Query(() => [Challenge])
+  async readAllChallenges(): Promise<Challenge[] | null> {
+    return await repository.find({ relations: ["actions"] });
   }
 }

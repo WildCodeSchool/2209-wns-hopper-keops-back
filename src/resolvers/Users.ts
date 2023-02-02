@@ -78,14 +78,14 @@ export class UsersResolver {
     return context.me;
   }
 
+  @Authorized()
   @Query(() => User, { nullable: true })
   async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
-    console.log("Read One User ID: ", id);
     const user = await repository.findOne({ where: { id } });
-    console.log("Read One User: ", user);
     return user === null ? null : user;
   }
 
+  @Authorized()
   @Mutation(() => User, { nullable: true })
   async updateUser(
     @Arg("data", () => UpdateUserInput) data: UpdateUserInput,
@@ -113,6 +113,7 @@ export class UsersResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => User)
   async deleteUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });

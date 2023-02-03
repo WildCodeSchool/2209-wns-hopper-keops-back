@@ -78,12 +78,15 @@ export class UsersResolver {
     return context.me;
   }
 
+  @Authorized()
   @Query(() => User, { nullable: true })
+  //! Limit informations from DB when user profile != current user (password, email)
   async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
     return user === null ? null : user;
   }
 
+  @Authorized()
   @Mutation(() => User, { nullable: true })
   async updateUser(
     @Arg("data", () => UpdateUserInput) data: UpdateUserInput,
@@ -111,6 +114,7 @@ export class UsersResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => User)
   async deleteUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });

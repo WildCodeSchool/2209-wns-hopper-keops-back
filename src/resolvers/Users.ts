@@ -4,11 +4,9 @@ import {
   Authorized,
   Ctx,
   ID,
-  MiddlewareFn,
   Mutation,
   Query,
   Resolver,
-  UseMiddleware,
 } from "type-graphql";
 import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
@@ -16,32 +14,6 @@ import jwt from "jsonwebtoken";
 import { IContext } from "../auth";
 
 const repository = dataSource.getRepository(User);
-
-const keepInfosSecret: MiddlewareFn = async ({ context, info }, next) => {
-  const result = await next();
-
-  console.log("RESULLLLLT.ID", result.id);
-  console.log("MEEEEEEEEEEE.ID", context.me.id);
-
-  if (result.id === context.me.id) {
-    console.log("keepInfosSecret =", result);
-    return result;
-  } else if (result && result.id !== context.me.id) {
-    // const properties
-    // Object.keys(result).filter((key) => key != In())
-
-    const filteredResult = {
-      id: result.id,
-      name: result.name,
-      score: result.score,
-    };
-
-    console.log("keepInfosSecret =", result);
-    return filteredResult;
-  }
-
-  return null;
-};
 
 @Resolver()
 export class UsersResolver {
@@ -107,13 +79,9 @@ export class UsersResolver {
   }
 
   @Authorized()
-  @UseMiddleware(keepInfosSecret)
   @Query(() => User, { nullable: true })
   //! Limit informations from DB when user profile != current user (password, email)
-  async readUser(
-    @Arg("id", () => ID) id: string,
-    @Ctx() context: IContext
-  ): Promise<User | null> {
+  async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
     return user === null ? null : user;
   }

@@ -8,7 +8,7 @@ jobs:
     services:
       db:
         image: postgres
-        environment:
+        env:
           POSTGRES_PASSWORD: secret
         ports:
           - 5432:5432

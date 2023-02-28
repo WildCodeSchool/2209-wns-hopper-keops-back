@@ -3,21 +3,21 @@ name: jest-and-docker-ci
 on: push
 
 jobs:
-  database:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Install dependencies, run docker database
-        run: npm i && npm run docker-test
+  # database:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out code
+  #       uses: actions/checkout@v2
+  #     - name: Install dependencies, run docker database
+  #       run: npm i && npm run docker-test
   test-back:
     needs: database
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-      - name: Run tests
-        run: npm test ./tests/app.test.ts --watchAll=false
+      - name: Install dependencies and run tests
+        run: npm i && npm test ./tests/app.test.ts
   # docker:
   #   needs: test-back
   #   if: github.ref == 'refs/heads/main'

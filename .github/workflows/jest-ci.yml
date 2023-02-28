@@ -7,11 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     services:
       db:
-      image: postgres
-      environment:
-        POSTGRES_PASSWORD: secret
-      ports:
-        - 5432:5432
+        image: postgres
+        environment:
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
     steps:
       - name: Check out code
         uses: actions/checkout@v2

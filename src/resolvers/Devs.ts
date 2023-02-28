@@ -32,7 +32,12 @@ export class DevsResolver {
         const password = await argon2.hash("superSecret");
         await dataSource
           .getRepository(User)
-          .save({ email: "admin@keops.fr", password, isAdmin: true });
+          .save({
+            email: "admin@keops.fr",
+            password,
+            isAdmin: true,
+            createdAt: new Date(),
+          });
       }
       return true;
     } catch (error) {

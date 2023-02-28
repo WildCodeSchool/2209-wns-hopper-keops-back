@@ -51,7 +51,7 @@ export class User {
   @UseMiddleware(IsUser)
   createdAt: Date;
 
-  @Column()
+  @Column({ default: null })
   @Field()
   @UseMiddleware(IsUser)
   updatedAt: Date;

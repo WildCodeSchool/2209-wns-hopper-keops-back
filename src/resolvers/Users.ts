@@ -22,6 +22,7 @@ export class UsersResolver {
     @Arg("data", () => UserInput) data: UserInput
   ): Promise<User> {
     data.password = await argon2.hash(data.password);
+    data.createdAt = new Date();
     const user = await repository.save(data);
     return user;
   }
@@ -34,14 +35,16 @@ export class UsersResolver {
     try {
       const user = await repository.findOne({ where: { email } });
       console.log("user: ", user);
+      console.log("password: ", password);
       if (user === null) {
         console.log("user null");
         return null;
       }
-      const decryptedPassword = await argon2.verify(user.password, password);
-      console.log("decrypted password: ", decryptedPassword);
-      if (decryptedPassword) {
+      const hasMatched = await argon2.verify(user.password, password);
+      console.log("decrypted password: ", hasMatched);
+      if (hasMatched) {
         console.log("user find and pass decrypt");
+        console.log("Env", process.env);
 
         const secret = process.env.JWT_SECRET;
         if (secret === undefined) {
@@ -76,12 +79,15 @@ export class UsersResolver {
     return context.me;
   }
 
+  @Authorized()
   @Query(() => User, { nullable: true })
+  //! Limit informations from DB when user profile != current user (password, email)
   async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
     return user === null ? null : user;
   }
 
+  @Authorized()
   @Mutation(() => User, { nullable: true })
   async updateUser(
     @Arg("data", () => UpdateUserInput) data: UpdateUserInput,
@@ -91,6 +97,7 @@ export class UsersResolver {
     if (user === null) {
       return null;
     } else {
+      data.updatedAt = new Date();
       return await repository.save({ ...user, ...data });
     }
   }
@@ -109,6 +116,7 @@ export class UsersResolver {
     }
   }
 
+  @Authorized()
   @Mutation(() => User)
   async deleteUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });

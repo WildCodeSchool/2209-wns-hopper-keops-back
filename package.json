@@ -6,7 +6,9 @@
   "scripts": {
     "docker": "docker compose up --build",
     "docker -f": "docker compose up --build --force-recreate",
-    "test": "jest --watch",
+    "docker-test": "docker compose -f docker-compose.test.yml up",
+    "test": "JWT_SECRET=supersecret jest --watch",
+    "test-ci": "JWT_SECRET=supersecret jest ./tests/app.test.ts",
     "start": "ts-node-dev --poll --respawn --transpile-only src/index.ts"
   },
   "author": "",

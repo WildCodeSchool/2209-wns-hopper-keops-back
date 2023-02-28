@@ -46,12 +46,12 @@ export class User {
   @UseMiddleware(IsUser)
   email: string;
 
-  @Column({ default: new Date() })
+  @Column()
   @Field()
   @UseMiddleware(IsUser)
   createdAt: Date;
 
-  @Column({ default: new Date() })
+  @Column()
   @Field()
   @UseMiddleware(IsUser)
   updatedAt: Date;
@@ -88,6 +88,8 @@ export class UserInput {
   @Field()
   @IsEmail()
   email: string;
+
+  createdAt: Date;
 }
 
 @InputType()
@@ -99,4 +101,6 @@ export class UpdateUserInput {
   @Field()
   @IsEmail()
   email: string;
+
+  updatedAt: Date;
 }

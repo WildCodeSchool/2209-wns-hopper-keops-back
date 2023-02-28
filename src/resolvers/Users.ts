@@ -22,6 +22,7 @@ export class UsersResolver {
     @Arg("data", () => UserInput) data: UserInput
   ): Promise<User> {
     data.password = await argon2.hash(data.password);
+    data.createdAt = new Date();
     const user = await repository.save(data);
     return user;
   }
@@ -96,6 +97,7 @@ export class UsersResolver {
     if (user === null) {
       return null;
     } else {
+      data.updatedAt = new Date();
       return await repository.save({ ...user, ...data });
     }
   }

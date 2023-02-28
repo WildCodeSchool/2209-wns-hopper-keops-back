@@ -14,7 +14,7 @@ export async function initializeTestDb(): Promise<void> {
       .map((entity) => `"${entity.tableName}"`)
       .join(", ");
     // Fait une requête SQL à la base de donnée pour supprimer tout les ligne de la db ainsi que les relations
-    await dataSource.query(`TRUNCATE ${tableNames} CASCADE`);
+    await dataSource.query(`TRUNCATE ${tableNames} RESTART IDENTITY CASCADE`);
     console.log("DATABASE: Clean");
   } catch (error: any) {
     throw new Error(`ERROR: Cleaning database: ${JSON.stringify(error)}`);

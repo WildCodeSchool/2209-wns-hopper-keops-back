@@ -24,7 +24,9 @@ export class ActionsResolver {
     @Arg("data", () => ActionInput) data: ActionInput,
     @Ctx() context: IContext
   ): Promise<Action> {
-    const Action = await repository.save({ ...data, createdBy: context.me });
+    data.createdBy = context.me;
+    data.createdAt = new Date();
+    const Action = await repository.save(data);
     return Action;
   }
 

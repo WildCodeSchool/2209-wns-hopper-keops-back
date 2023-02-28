@@ -9,7 +9,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Install dependencies, run docker database and run tests
-        run: npm i && npm docker-test && npm test ./tests/app.test.ts --watchAll=false
+        run: npm i && npm run docker-test && npm test ./tests/app.test.ts --watchAll=false
   # docker:
   #   needs: test-back
   #   if: github.ref == 'refs/heads/main'

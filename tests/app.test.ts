@@ -124,6 +124,9 @@ describe("Marck want to read one user profile", () => {
     console.log(result);
     expect(result.data?.readUser).toMatchObject(sanders);
   });
+  it("Tests false", async () => {
+    expect(true).toBe(false);
+  });
   // it("Returns a token when Marck use the right credentials ", async () => {
   //   const mutation = print(signin);
   //   const result = await graphql({

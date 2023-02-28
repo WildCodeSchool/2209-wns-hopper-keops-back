@@ -16,7 +16,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
       - name: Install dependencies and run tests
-        run: npm i && npm test ./tests/app.test.ts
+        run: npm i && npm test-ci
   # docker:
   #   needs: test-back
   #   if: github.ref == 'refs/heads/main'

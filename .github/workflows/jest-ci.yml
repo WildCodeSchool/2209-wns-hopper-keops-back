@@ -3,15 +3,15 @@ name: jest-and-docker-ci
 on: push
 
 jobs:
-  # database:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check out code
-  #       uses: actions/checkout@v2
-  #     - name: Install dependencies, run docker database
-  #       run: npm i && npm run docker-test
   test-back:
     runs-on: ubuntu-latest
+    services:
+      db:
+      image: postgres
+      environment:
+        POSTGRES_PASSWORD: secret
+      ports:
+        - 5432:5432
     steps:
       - name: Check out code
         uses: actions/checkout@v2

@@ -1,11 +1,14 @@
 import { DataSource } from "typeorm";
+import { Action } from "./entity/Action";
+import { Challenge } from "./entity/Challenge";
 import { User } from "./entity/User";
+import { UserToChallenge } from "./entity/UserToChallenge";
 
 // Identifiant de connexion à la base de donnée et choix des tables à récupérer
 const dataSource = new DataSource({
   type: "postgres",
   // l'adresse est celle de l'image de la base de donnée cette adresse est routé par docker
-  host: "db",
+  host: process.env.DB_HOST,
   port: 5432,
   username: "postgres",
   password: "secret",
@@ -14,7 +17,7 @@ const dataSource = new DataSource({
   synchronize: true,
   // option d'affichage des erreur et requête SQL dans la console
   logging: ["query", "error"],
-  entities: [User],
+  entities: [User, Challenge, UserToChallenge, Action],
 });
 
 export default dataSource;

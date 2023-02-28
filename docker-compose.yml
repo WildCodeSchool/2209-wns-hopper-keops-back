@@ -7,8 +7,17 @@ services:
       - 4000:4000
     # Définit une connection direct entre les deux dossiers
     volumes:
+      # autoreload des changements des dossier src et test de notre pc vers ceux du conteneur docker
       - ./src/:/app/src
+      - ./tests/:/app/tests
+    # Variables d'environnment
+    environment:
+      - DB_HOST=db
+    env_file:
+      - .env
   db:
+    ports:
+      - 3300:5432
     image: postgres
     environment:
       POSTGRES_PASSWORD: secret

@@ -11,7 +11,6 @@ jobs:
   #     - name: Install dependencies, run docker database
   #       run: npm i && npm run docker-test
   test-back:
-    needs: database
     runs-on: ubuntu-latest
     steps:
       - name: Check out code

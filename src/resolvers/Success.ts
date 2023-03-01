@@ -16,6 +16,8 @@ const repository = dataSource.getRepository(Success);
 export class SuccessResolver {
   @Authorized()
   @Mutation(() => Success)
+
+  // ! Verify date is between challenge.start_date and challenge.end_date
   async createSuccess(
     @Arg("data", () => CreateSuccessInput) data: CreateSuccessInput,
     @Ctx() context: IContext

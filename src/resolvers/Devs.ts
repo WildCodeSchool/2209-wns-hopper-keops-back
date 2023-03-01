@@ -2,6 +2,7 @@ import dataSource from "../utils";
 import * as argon2 from "argon2";
 import { Mutation, Resolver } from "type-graphql";
 import { User } from "../entity/User";
+import { Action } from "../entity/Action";
 
 @Resolver()
 export class DevsResolver {
@@ -25,20 +26,40 @@ export class DevsResolver {
       }
 
       // peupler la base de données
-      const admin = await dataSource
-        .getRepository(User)
-        .findOne({ where: { email: "admin@keops.fr" } });
-      if (admin === null) {
+      // Admin
+      async function createAdmin(): Promise<User> {
         const password = await argon2.hash("superSecret");
-        await dataSource
-          .getRepository(User)
-          .save({
-            email: "admin@keops.fr",
-            password,
-            isAdmin: true,
-            createdAt: new Date(),
-          });
+        return await dataSource.getRepository(User).save({
+          email: "admin@keops.fr",
+          password,
+          isAdmin: true,
+          createdAt: new Date(),
+        });
       }
+      const admin = await createAdmin();
+
+      // Actions
+      if (admin !== null) {
+        await dataSource.getRepository(Action).save({
+          title: "Flexitarien",
+          description: "Manger moins de viande",
+          createdBy: admin,
+          createdAt: new Date(),
+        });
+        await dataSource.getRepository(Action).save({
+          title: "Cyclo-Boulot",
+          description: "Aller au travail en vélo",
+          createdBy: admin,
+          createdAt: new Date(),
+        });
+        await dataSource.getRepository(Action).save({
+          title: "One Two Tri",
+          description: "Trier ses déchets",
+          createdBy: admin,
+          createdAt: new Date(),
+        });
+      }
+
       return true;
     } catch (error) {
       return false;

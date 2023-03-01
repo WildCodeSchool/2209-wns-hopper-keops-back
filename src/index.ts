@@ -8,11 +8,8 @@ import { authChecker } from "./auth";
 import { UserToChallengesResolver } from "./resolvers/UsersToChallenges";
 import { ActionsResolver } from "./resolvers/Actions";
 import { ActionsToChallengesResolver } from "./resolvers/ActionsToChallenge";
-<<<<<<< HEAD
 import { DevsResolver } from "./resolvers/Devs";
-=======
 import { SuccessResolver } from "./resolvers/Success";
->>>>>>> 4cae098 (Add success to config)
 
 const PORT = 4000;
 
@@ -27,11 +24,8 @@ async function bootstrap(): Promise<void> {
       UserToChallengesResolver,
       ActionsResolver,
       ActionsToChallengesResolver,
-<<<<<<< HEAD
       ...(process.env.DEV !== undefined ? [DevsResolver] : []),
-=======
       SuccessResolver,
->>>>>>> 4cae098 (Add success to config)
     ],
     authChecker,
   });

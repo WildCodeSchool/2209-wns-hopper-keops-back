@@ -48,3 +48,8 @@ export class CreateSuccessInput {
   createdAt: Date;
   user: User;
 }
+
+@InputType()
+export class DeleteSuccessInput {
+  id: string;
+}

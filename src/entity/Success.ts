@@ -51,5 +51,6 @@ export class CreateSuccessInput {
 
 @InputType()
 export class DeleteSuccessInput {
+  @Field(() => String)
   id: string;
 }

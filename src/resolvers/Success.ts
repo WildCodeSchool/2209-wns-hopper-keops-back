@@ -25,7 +25,7 @@ export class SuccessResolver {
         action: data.action,
         challenge: data.challenge,
         user: context.me,
-        createdAt: new Date(),
+        date: data.date,
       });
       return success;
     } catch (err) {

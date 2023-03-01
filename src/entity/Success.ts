@@ -1,5 +1,11 @@
 import { Field, ID, InputType, ObjectType } from "type-graphql";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  Index,
+} from "typeorm";
 import { Action } from "./Action";
 import { Challenge } from "./Challenge";
 import { UniqueRelation } from "./common";
@@ -10,6 +16,7 @@ import { User } from "./User";
 
 @Entity()
 @ObjectType()
+@Index(["user", "challenge", "action", "date"], { unique: true })
 export class Success {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
@@ -17,7 +24,7 @@ export class Success {
 
   @Column()
   @Field(() => Date)
-  createdAt: Date;
+  date: Date;
 
   // User
   @ManyToOne(() => User)
@@ -45,7 +52,9 @@ export class CreateSuccessInput {
   @Field(() => UniqueRelation)
   challenge: UniqueRelation;
 
-  createdAt: Date;
+  @Field(() => Date)
+  date: Date;
+
   user: User;
 }
 

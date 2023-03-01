@@ -8,8 +8,11 @@ import { authChecker } from "./auth";
 import { UserToChallengesResolver } from "./resolvers/UsersToChallenges";
 import { ActionsResolver } from "./resolvers/Actions";
 import { ActionsToChallengesResolver } from "./resolvers/ActionsToChallenge";
+import { DevsResolver } from "./resolvers/Devs";
 
 const PORT = 4000;
+
+console.log("DEV", process.env.DEV);
 
 async function bootstrap(): Promise<void> {
   // ... Building schema here
@@ -20,6 +23,7 @@ async function bootstrap(): Promise<void> {
       UserToChallengesResolver,
       ActionsResolver,
       ActionsToChallengesResolver,
+      ...(process.env.DEV !== undefined ? [DevsResolver] : []),
     ],
     authChecker,
   });

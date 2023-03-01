@@ -55,7 +55,7 @@ export class Challenge {
   createdBy: User;
 
   @Column({ default: null })
-  @Field(() => Date, { nullable: true })
+  @Field(() => Date)
   updatedAt: Date;
 
   @ManyToMany(() => Action, (action) => action.challenges, {
@@ -67,7 +67,7 @@ export class Challenge {
 
   // User
   @ManyToOne(() => User)
-  @Field(() => User, { nullable: true })
+  @Field(() => User)
   updatedBy: User;
 
   @OneToMany(
@@ -89,7 +89,7 @@ export class ActionToChallengeInput {
 }
 
 @InputType()
-export class ChallengeInput {
+export class UpdateChallengeInput {
   @Field()
   length: number;
 
@@ -99,8 +99,8 @@ export class ChallengeInput {
   @Field()
   name: string;
 
-  createdAt: Date;
-  createdBy: User;
+  updatedAt: Date;
+  updatedBy: User;
 }
 
 @InputType()

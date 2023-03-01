@@ -3,7 +3,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  // OneToMany,
   ManyToOne,
   ManyToMany,
 } from "typeorm";
@@ -22,7 +21,7 @@ export class Action {
 
   @Column()
   @Field()
-  title?: string;
+  title: string;
 
   @Column()
   @Field()
@@ -32,7 +31,7 @@ export class Action {
   @Field()
   sucessValue: number;
 
-  @Column({ default: new Date() })
+  @Column()
   @Field()
   createdAt: Date;
 
@@ -42,34 +41,22 @@ export class Action {
   createdBy: User;
 
   @Column({ default: null })
-  @Field(() => Date, { nullable: true })
+  @Field(() => Date)
   updatedAt: Date;
 
   // User
   @ManyToOne(() => User)
-  @Field(() => User, { nullable: true })
+  @Field(() => User)
   updatedBy: User;
 
   @ManyToMany(() => Challenge, (challenge) => challenge.actions)
   @Field(() => [Challenge])
   challenges: Challenge[];
-
-  // @OneToMany(
-  //   () => UserToChallenge,
-  //   (userToChallenge) => userToChallenge.challenge
-  // )
-  // @Field(() => [UserToChallenge])
-  // userToChallenges: UserToChallenge[];
 }
 
 // Class de d'écriture TypeGraphQL,
 // plus besoin de TypeORM et des champs nécéssaire à la lecture
 // Ajout de la validation des champs avec class-validator
-
-// @InputType()
-// export class ActionToChallengeInput {
-//   challenges: ManyRelations;
-// }
 
 @InputType()
 export class ActionInput {
@@ -80,4 +67,5 @@ export class ActionInput {
   description: string;
 
   createdBy: User;
+  createdAt: Date;
 }

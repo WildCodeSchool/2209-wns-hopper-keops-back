@@ -8,7 +8,11 @@ import {
   Resolver,
   ID,
 } from "type-graphql";
-import { Challenge, ChallengeInput, CreateChallengeInput } from "../entity/Challenge";
+import {
+  Challenge,
+  CreateChallengeInput,
+  UpdateChallengeInput,
+} from "../entity/Challenge";
 import { IContext } from "../auth";
 import { setActionToChallengeFct } from "./ActionsToChallenge";
 
@@ -26,12 +30,14 @@ export class ChallengesResolver {
     @Ctx() context: IContext
   ): Promise<Challenge | null> {
     try {
-    const challenge = await repository.save({
-      length: data.length, start_date: data.start_date, name: data.name,
-      createdBy: context.me,
-      createdAt: new Date(),
-    });
-    return await setActionToChallengeFct(data.actions, challenge.id);
+      const challenge = await repository.save({
+        length: data.length,
+        start_date: data.start_date,
+        name: data.name,
+        createdBy: context.me,
+        createdAt: new Date(),
+      });
+      return await setActionToChallengeFct(data.actions, challenge.id);
     } catch {
       return null;
     }
@@ -40,10 +46,12 @@ export class ChallengesResolver {
   @Authorized()
   @Mutation(() => Challenge)
   async updateChallenge(
-    @Arg("data", () => ChallengeInput) data: ChallengeInput,
+    @Arg("data", () => UpdateChallengeInput) data: UpdateChallengeInput,
     @Ctx() context: IContext
   ): Promise<Challenge> {
-    const challenge = await repository.save({ ...data, createdBy: context.me });
+    data.updatedAt = new Date();
+    data.updatedBy = context.me;
+    const challenge = await repository.save(data);
     return challenge;
   }
 

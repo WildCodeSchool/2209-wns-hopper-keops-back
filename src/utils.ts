@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { Action } from "./entity/Action";
 import { Challenge } from "./entity/Challenge";
+import { Success } from "./entity/Success";
 import { User } from "./entity/User";
 import { UserToChallenge } from "./entity/UserToChallenge";
 
@@ -17,7 +18,7 @@ const dataSource = new DataSource({
   synchronize: true,
   // option d'affichage des erreur et requête SQL dans la console
   logging: ["query", "error"],
-  entities: [User, Challenge, UserToChallenge, Action],
+  entities: [User, Challenge, UserToChallenge, Action, Success],
 });
 
 export default dataSource;

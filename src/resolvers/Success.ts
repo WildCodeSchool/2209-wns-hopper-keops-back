@@ -1,13 +1,5 @@
 import dataSource from "../utils";
-import {
-  Arg,
-  Authorized,
-  Ctx,
-  Mutation,
-  Query,
-  Resolver,
-  ID,
-} from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
 import {
   Success,
   DeleteSuccessInput,
@@ -21,7 +13,7 @@ import { IContext } from "../auth";
 const repository = dataSource.getRepository(Success);
 
 @Resolver()
-export class SuccesssResolver {
+export class SuccessResolver {
   @Authorized()
   @Mutation(() => Success)
   async createSuccess(

@@ -15,11 +15,13 @@ import {
 } from "../entity/Challenge";
 import { IContext } from "../auth";
 import { setActionToChallengeFct } from "./ActionsToChallenge";
+import { UserToChallenge } from "../entity/UserToChallenge";
 
 // Import de l'entity UTC ✓
 // Création d'un challenge
 // Création d'une liaison
 const repository = dataSource.getRepository(Challenge);
+const UserToChallengeRepository = dataSource.getRepository(UserToChallenge);
 
 @Resolver()
 export class ChallengesResolver {
@@ -37,6 +39,14 @@ export class ChallengesResolver {
         createdBy: context.me,
         createdAt: new Date(),
       });
+
+      // ! UserToChallengeRepository to put in a function in UserToChallenge Resolver
+      await UserToChallengeRepository.save({
+        user: context.me,
+        challenge,
+        isAccepted: true,
+      });
+
       return await setActionToChallengeFct(data.actions, challenge.id);
     } catch {
       return null;
@@ -66,6 +76,13 @@ export class ChallengesResolver {
   @Authorized()
   @Query(() => [Challenge])
   async readAllChallenges(): Promise<Challenge[] | null> {
-    return await repository.find({ relations: ["actions"] });
+    return await repository.find({
+      relations: [
+        "actions",
+        "createdBy",
+        "userToChallenges",
+        "userToChallenges.user",
+      ],
+    });
   }
 }

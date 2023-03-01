@@ -36,7 +36,8 @@ export class SuccesssResolver {
         createdAt: new Date(),
       });
       return success;
-    } catch {
+    } catch (err) {
+      console.error(err);
       return null;
     }
   }
@@ -48,7 +49,9 @@ export class SuccesssResolver {
     @Ctx() context: IContext
   ): Promise<Success | null> {
     try {
-      const success = await repository.findOne({ where: { id: data.id } });
+      const success = await repository.findOne({
+        where: { id: data.id, user: context.me },
+      });
       if (success !== null) {
         return await repository.remove(success);
       }

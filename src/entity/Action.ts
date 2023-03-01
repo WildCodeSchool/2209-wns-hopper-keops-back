@@ -29,7 +29,7 @@ export class Action {
 
   @Column({ default: 100 })
   @Field()
-  sucessValue: number;
+  successValue: number;
 
   @Column()
   @Field()
@@ -65,6 +65,9 @@ export class ActionInput {
 
   @Field()
   description: string;
+
+  @Field({ nullable: true })
+  successValue: number;
 
   createdBy: User;
   createdAt: Date;

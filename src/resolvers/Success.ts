@@ -6,11 +6,15 @@ import {
   CreateSuccessInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
+import { UserToChallenge } from "../entity/UserToChallenge";
+import { Action } from "../entity/Action";
 
 // Import de l'entity UTC ✓
 // Création d'un Success
 // Création d'une liaison
 const repository = dataSource.getRepository(Success);
+const UserToChallengeRepository = dataSource.getRepository(UserToChallenge);
+const ActionRepository = dataSource.getRepository(Action);
 
 @Resolver()
 export class SuccessResolver {
@@ -29,6 +33,20 @@ export class SuccessResolver {
         user: context.me,
         date: data.date,
       });
+
+      const userToChallenge = await UserToChallengeRepository.findOne({
+        where: { challenge: data.challenge, user: context.me },
+      });
+
+      const action = await ActionRepository.findOneBy({ id: data.action.id });
+
+      if (userToChallenge !== null && action !== null) {
+        await UserToChallengeRepository.save({
+          ...userToChallenge,
+          challengeScore: userToChallenge.challengeScore + action.successValue,
+        });
+      }
+
       return success;
     } catch (err) {
       console.error(err);

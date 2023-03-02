@@ -26,6 +26,10 @@ export class UserToChallenge {
   @Field()
   isAccepted!: boolean;
 
+  @Column({ default: 0 })
+  @Field()
+  challengeScore!: number;
+
   @ManyToOne(() => User, (user) => user.userToChallenges, {
     onUpdate: "CASCADE",
   })

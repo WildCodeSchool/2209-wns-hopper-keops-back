@@ -4,9 +4,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  ManyToMany,
+  Index,
 } from "typeorm";
+import { Action } from "./Action";
 import { Challenge } from "./Challenge";
+import { UniqueRelation } from "./common";
 import { User } from "./User";
 
 // Création et gestion du schema de donnée de wilder TypeORM
@@ -14,44 +16,28 @@ import { User } from "./User";
 
 @Entity()
 @ObjectType()
-export class Action {
+@Index(["user", "challenge", "action", "date"], { unique: true })
+export class Success {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;
 
   @Column()
-  @Field()
-  title: string;
-
-  @Column()
-  @Field()
-  description: string;
-
-  @Column({ default: 100 })
-  @Field()
-  successValue: number;
-
-  @Column()
-  @Field()
-  createdAt: Date;
-
-  // User
-  @ManyToOne(() => User)
-  @Field(() => User)
-  createdBy: User;
-
-  @Column({ default: null })
   @Field(() => Date)
-  updatedAt: Date;
+  date: Date;
 
   // User
   @ManyToOne(() => User)
   @Field(() => User)
-  updatedBy: User;
+  user: User;
 
-  @ManyToMany(() => Challenge, (challenge) => challenge.actions)
-  @Field(() => [Challenge])
-  challenges: Challenge[];
+  @ManyToOne(() => Action)
+  @Field(() => Action)
+  action: Action;
+
+  @ManyToOne(() => Challenge)
+  @Field(() => Challenge)
+  challenge: Challenge;
 }
 
 // Class de d'écriture TypeGraphQL,
@@ -59,16 +45,21 @@ export class Action {
 // Ajout de la validation des champs avec class-validator
 
 @InputType()
-export class ActionInput {
-  @Field()
-  title: string;
+export class CreateSuccessInput {
+  @Field(() => UniqueRelation)
+  action: UniqueRelation;
 
-  @Field()
-  description: string;
+  @Field(() => UniqueRelation)
+  challenge: UniqueRelation;
 
-  @Field({ nullable: true })
-  successValue: number;
+  @Field(() => Date)
+  date: Date;
 
-  createdBy: User;
-  createdAt: Date;
+  user: User;
+}
+
+@InputType()
+export class DeleteSuccessInput {
+  @Field(() => String)
+  id: string;
 }

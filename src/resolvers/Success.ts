@@ -17,6 +17,11 @@ const repository = dataSource.getRepository(Success);
 const UserToChallengeRepository = dataSource.getRepository(UserToChallenge);
 const ActionRepository = dataSource.getRepository(Action);
 
+interface IActionSuccess {
+  id: string;
+  successValue: number;
+}
+
 @Resolver()
 export class SuccessResolver {
   @Authorized()
@@ -58,7 +63,6 @@ export class SuccessResolver {
 
   @Authorized()
   @Mutation(() => Boolean)
-
   async createSuccesses(
     @Arg("data", () => CreateSuccessesInput) data: CreateSuccessesInput,
     @Ctx() context: IContext
@@ -67,27 +71,63 @@ export class SuccessResolver {
       const user = context.me;
       const challenge = data.challenge;
       let addScore = 0;
+      const actionsIds: string[] = [];
+      const actionsWithSuccess: IActionSuccess[] = [];
 
-      for (const successRelation of data.successesRelation){
-        const success = await repository.save({
-          user, challenge, date: successRelation.date, action: successRelation.action
-        })
-        if(success !== null){
-          const action = await ActionRepository.findOneBy({ id: successRelation.action.id });
-          if(action !== null){
-          addScore = addScore + Number(action.successValue)
-          }
+      // Push each action.id includes in data.successRaltaion in actionsIds one time : string[]
+      for (const successRelation of data.successesRelation) {
+        if (!actionsIds.includes(successRelation.action.id)) {
+          actionsIds.push(successRelation.action.id);
         }
-      };
+      }
+
+      // Find in DB each actions
+      // Push partialAction in actionsWithSuccess : IActionSuccess[]
+      for (const id of actionsIds) {
+        const selectedAction = await dataSource
+          .getRepository(Action)
+          .findOneBy({ id });
+        if (selectedAction !== null) {
+          actionsWithSuccess.push({
+            id,
+            successValue: selectedAction.successValue,
+          });
+        }
+      }
+
+      for (const successRelation of data.successesRelation) {
+        // Create success in DB
+        const success = await repository.save({
+          user,
+          challenge,
+          date: successRelation.date,
+          action: successRelation.action,
+        });
+
+        // Find the partial action equal to successRelation.action.id
+        const partialAction = actionsWithSuccess.find(
+          (action) => action.id === successRelation.action.id
+        );
+
+        // add the action value to  addScore
+        if (success !== null && partialAction !== undefined) {
+          addScore = addScore + Number(partialAction.successValue);
+        }
+      }
+
+      // Get the relation betwen the user and the challenge
       const userToChallenge = await UserToChallengeRepository.findOne({
         where: { challenge, user },
       });
-      if(userToChallenge !== null){
+
+      // Update the score of the userToChallenge
+      if (userToChallenge !== null) {
         await UserToChallengeRepository.save({
           ...userToChallenge,
           challengeScore: Number(userToChallenge.challengeScore) + addScore,
         });
       }
+
       return true;
     } catch (err) {
       console.error(err);

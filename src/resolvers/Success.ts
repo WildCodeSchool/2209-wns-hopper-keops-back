@@ -66,6 +66,7 @@ export class SuccessResolver {
     try {
       const user = context.me;
       const challenge = data.challenge;
+      let addScore = 0;
 
       for (const successRelation of data.successesRelation){
         const success = await repository.save({
@@ -73,19 +74,20 @@ export class SuccessResolver {
         })
         if(success !== null){
           const action = await ActionRepository.findOneBy({ id: successRelation.action.id });
-          const userToChallenge = await UserToChallengeRepository.findOne({
-            where: { challenge, user },
-          });
-
-          if(userToChallenge !== null && action !== null){
-            await UserToChallengeRepository.save({
-              ...userToChallenge,
-              // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-              challengeScore: userToChallenge.challengeScore + action.successValue,
-            });
+          if(action !== null){
+          addScore = addScore + Number(action.successValue)
           }
         }
       };
+      const userToChallenge = await UserToChallengeRepository.findOne({
+        where: { challenge, user },
+      });
+      if(userToChallenge !== null){
+        await UserToChallengeRepository.save({
+          ...userToChallenge,
+          challengeScore: Number(userToChallenge.challengeScore) + addScore,
+        });
+      }
       return true;
     } catch (err) {
       console.error(err);

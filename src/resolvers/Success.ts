@@ -4,6 +4,7 @@ import {
   Success,
   DeleteSuccessInput,
   CreateSuccessInput,
+  CreateSuccessesInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
 import { UserToChallenge } from "../entity/UserToChallenge";
@@ -43,6 +44,7 @@ export class SuccessResolver {
       if (userToChallenge !== null && action !== null) {
         await UserToChallengeRepository.save({
           ...userToChallenge,
+          // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
           challengeScore: userToChallenge.challengeScore + action.successValue,
         });
       }
@@ -51,6 +53,29 @@ export class SuccessResolver {
     } catch (err) {
       console.error(err);
       return null;
+    }
+  }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+
+  async createSuccesses(
+    @Arg("data", () => CreateSuccessesInput) data: CreateSuccessesInput,
+    @Ctx() context: IContext
+  ): Promise<boolean> {
+    try {
+      const user = context.me;
+      const challenge = data.challenge;
+
+      for (const successRelation of data.successesRelation){
+        await repository.save({
+          user, challenge, date: successRelation.date, action: successRelation.action
+        })
+      };
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
     }
   }
 

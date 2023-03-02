@@ -51,6 +51,7 @@ export class DevsResolver {
           description: "Aller au travail en vélo",
           createdBy: admin,
           createdAt: new Date(),
+          successValue: 30,
         });
         await dataSource.getRepository(Action).save({
           title: "One Two Tri",

@@ -68,9 +68,23 @@ export class SuccessResolver {
       const challenge = data.challenge;
 
       for (const successRelation of data.successesRelation){
-        await repository.save({
+        const success = await repository.save({
           user, challenge, date: successRelation.date, action: successRelation.action
         })
+        if(success !== null){
+          const action = await ActionRepository.findOneBy({ id: successRelation.action.id });
+          const userToChallenge = await UserToChallengeRepository.findOne({
+            where: { challenge, user },
+          });
+
+          if(userToChallenge !== null && action !== null){
+            await UserToChallengeRepository.save({
+              ...userToChallenge,
+              // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+              challengeScore: userToChallenge.challengeScore + action.successValue,
+            });
+          }
+        }
       };
       return true;
     } catch (err) {

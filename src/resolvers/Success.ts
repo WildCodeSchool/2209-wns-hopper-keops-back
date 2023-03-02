@@ -63,9 +63,30 @@ export class SuccessResolver {
     try {
       const success = await repository.findOne({
         where: { id: data.id, user: context.me },
+        relations: ["challenge", "action"],
       });
       if (success !== null) {
-        return await repository.remove(success);
+        console.log("SUCESSSSSSSS", success);
+
+        const userToChallenge = await UserToChallengeRepository.findOne({
+          where: { challenge: success.challenge, user: context.me },
+        });
+
+        const action = await ActionRepository.findOneBy({
+          id: success.action.id,
+        });
+
+        const successToRemove = await repository.remove(success);
+
+        if (userToChallenge !== null && action !== null) {
+          await UserToChallengeRepository.save({
+            ...userToChallenge,
+            challengeScore:
+              userToChallenge.challengeScore - action.successValue,
+          });
+        }
+
+        return successToRemove;
       }
       return null;
     } catch (err) {

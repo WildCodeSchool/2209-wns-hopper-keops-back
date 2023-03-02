@@ -8,7 +8,7 @@ import {
 } from "typeorm";
 import { Action } from "./Action";
 import { Challenge } from "./Challenge";
-import { UniqueRelation } from "./common";
+import { SuccessRelation, UniqueRelation } from "./common";
 import { User } from "./User";
 
 // Création et gestion du schema de donnée de wilder TypeORM
@@ -54,6 +54,17 @@ export class CreateSuccessInput {
 
   @Field(() => Date)
   date: Date;
+
+  user: User;
+}
+
+@InputType()
+export class CreateSuccessesInput {
+  @Field(() => [SuccessRelation])
+  successesRelation: SuccessRelation[];
+
+  @Field(() => UniqueRelation)
+  challenge: UniqueRelation;
 
   user: User;
 }

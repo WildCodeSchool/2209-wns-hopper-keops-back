@@ -5,6 +5,7 @@ import {
   DeleteSuccessInput,
   CreateSuccessInput,
   CreateSuccessesInput,
+  DeleteSuccessesInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
 import { UserToChallenge } from "../entity/UserToChallenge";
@@ -173,6 +174,55 @@ export class SuccessResolver {
     } catch (err) {
       console.error(err);
       return null;
+    }
+  }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+  async deleteSuccesses(
+    @Arg("data", () => DeleteSuccessesInput) data: DeleteSuccessesInput,
+    @Ctx() context: IContext
+  ): Promise<boolean> {
+    try {
+      if (data.successIds.length !== 0) {
+        const user = context.me;
+        const challenge = data.challenge;
+        let removeScore = 0;
+
+        for (const successId of data.successIds) {
+          const successToRemove = await dataSource
+            .getRepository(Success)
+            .findOne({
+              where: { id: successId },
+              relations: ["action.successValue"],
+            });
+
+          // Remove success
+          if (successToRemove !== null) {
+            await dataSource.getRepository(Success).remove(successToRemove);
+            removeScore += successToRemove.action.successValue;
+          }
+        }
+
+        // Get the relation betwen the user and the challenge
+        const userToChallenge = await UserToChallengeRepository.findOne({
+          where: { challenge, user },
+        });
+
+        // Update the score of the userToChallenge
+        if (userToChallenge !== null) {
+          await UserToChallengeRepository.save({
+            ...userToChallenge,
+            challengeScore:
+              Number(userToChallenge.challengeScore) - removeScore,
+          });
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
     }
   }
 

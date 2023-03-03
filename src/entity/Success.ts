@@ -74,3 +74,12 @@ export class DeleteSuccessInput {
   @Field(() => String)
   id: string;
 }
+
+@InputType()
+export class DeleteSuccessesInput {
+  @Field(() => [ID])
+  successIds: string[];
+
+  @Field(() => UniqueRelation)
+  challenge: UniqueRelation;
+}

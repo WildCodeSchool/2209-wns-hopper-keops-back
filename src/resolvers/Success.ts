@@ -185,22 +185,27 @@ export class SuccessResolver {
   ): Promise<boolean> {
     try {
       if (data.successIds.length !== 0) {
+        console.log("Data SuccesIds array is not empty !!!!!!");
         const user = context.me;
         const challenge = data.challenge;
         let removeScore = 0;
 
         for (const successId of data.successIds) {
+          console.log("SuccesIds is rollin !!!!!!!");
           const successToRemove = await dataSource
             .getRepository(Success)
             .findOne({
               where: { id: successId },
-              relations: ["action.successValue"],
+              relations: ["action"],
             });
+
+          console.log("Succes to remove", successToRemove);
 
           // Remove success
           if (successToRemove !== null) {
+            const succesValue = successToRemove.action.successValue;
             await dataSource.getRepository(Success).remove(successToRemove);
-            removeScore += successToRemove.action.successValue;
+            removeScore += succesValue;
           }
         }
 

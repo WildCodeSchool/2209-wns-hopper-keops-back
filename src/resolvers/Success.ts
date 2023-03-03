@@ -191,15 +191,12 @@ export class SuccessResolver {
         let removeScore = 0;
 
         for (const successId of data.successIds) {
-          console.log("SuccesIds is rollin !!!!!!!");
           const successToRemove = await dataSource
             .getRepository(Success)
             .findOne({
               where: { id: successId },
               relations: ["action"],
             });
-
-          console.log("Succes to remove", successToRemove);
 
           // Remove success
           if (successToRemove !== null) {

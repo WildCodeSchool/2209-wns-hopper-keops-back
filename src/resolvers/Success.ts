@@ -188,28 +188,36 @@ export class SuccessResolver {
         console.log("Data SuccesIds array is not empty !!!!!!");
         const user = context.me;
         const challenge = data.challenge;
+        const successesToRemove: Success[] = [];
         let removeScore = 0;
 
+        // create an array with all valide success
         for (const successId of data.successIds) {
           const successToRemove = await dataSource
             .getRepository(Success)
-            .findOne({
+            .findOneOrFail({
               where: { id: successId },
               relations: ["action"],
             });
+          if (successToRemove !== null) {
+            successesToRemove.push(successToRemove);
+          }
+        }
 
-          // Remove success
+        // Get the relation betwen the user and the challenge
+        const userToChallenge = await UserToChallengeRepository.findOneOrFail({
+          where: { challenge, user },
+        });
+
+        // Look after: if the challenge or a success doesn't existe all the next steps doesn't execute
+        // Remove success
+        for (const successToRemove of successesToRemove) {
           if (successToRemove !== null) {
             const succesValue = successToRemove.action.successValue;
             await dataSource.getRepository(Success).remove(successToRemove);
             removeScore += succesValue;
           }
         }
-
-        // Get the relation betwen the user and the challenge
-        const userToChallenge = await UserToChallengeRepository.findOne({
-          where: { challenge, user },
-        });
 
         // Update the score of the userToChallenge
         if (userToChallenge !== null) {

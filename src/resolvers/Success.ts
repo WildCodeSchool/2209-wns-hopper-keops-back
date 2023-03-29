@@ -235,18 +235,4 @@ export class SuccessResolver {
       return false;
     }
   }
-
-  // @Authorized()
-  // @Query(() => Success)
-  // async readOneSuccess(
-  //   @Arg("successID", () => ID) successID: string
-  // ): Promise<Success | null> {
-  //   return await repository.findOneBy({ id: successID });
-  // }
-
-  // @Authorized()
-  // @Query(() => [Success])
-  // async readAllSuccesses(): Promise<Success[] | null> {
-  //   return await repository.find({ relations: ["actions"] });
-  // }
 }

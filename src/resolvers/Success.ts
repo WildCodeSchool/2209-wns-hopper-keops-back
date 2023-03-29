@@ -5,6 +5,7 @@ import {
   DeleteSuccessInput,
   CreateSuccessInput,
   CreateSuccessesInput,
+  DeleteSuccessesInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
 import { UserToChallenge } from "../entity/UserToChallenge";
@@ -176,17 +177,62 @@ export class SuccessResolver {
     }
   }
 
-  // @Authorized()
-  // @Query(() => Success)
-  // async readOneSuccess(
-  //   @Arg("successID", () => ID) successID: string
-  // ): Promise<Success | null> {
-  //   return await repository.findOneBy({ id: successID });
-  // }
+  @Authorized()
+  @Mutation(() => Boolean)
+  async deleteSuccesses(
+    @Arg("data", () => DeleteSuccessesInput) data: DeleteSuccessesInput,
+    @Ctx() context: IContext
+  ): Promise<boolean> {
+    try {
+      if (data.successIds.length !== 0) {
+        console.log("Data SuccesIds array is not empty !!!!!!");
+        const user = context.me;
+        const challenge = data.challenge;
+        const successesToRemove: Success[] = [];
+        let removeScore = 0;
 
-  // @Authorized()
-  // @Query(() => [Success])
-  // async readAllSuccesses(): Promise<Success[] | null> {
-  //   return await repository.find({ relations: ["actions"] });
-  // }
+        // create an array with all valide success
+        for (const successId of data.successIds) {
+          const successToRemove = await dataSource
+            .getRepository(Success)
+            .findOneOrFail({
+              where: { id: successId },
+              relations: ["action"],
+            });
+          if (successToRemove !== null) {
+            successesToRemove.push(successToRemove);
+          }
+        }
+
+        // Get the relation betwen the user and the challenge
+        const userToChallenge = await UserToChallengeRepository.findOneOrFail({
+          where: { challenge, user },
+        });
+
+        // Look after: if the challenge or a success doesn't existe all the next steps doesn't execute
+        // Remove success
+        for (const successToRemove of successesToRemove) {
+          if (successToRemove !== null) {
+            const succesValue = successToRemove.action.successValue;
+            await dataSource.getRepository(Success).remove(successToRemove);
+            removeScore += succesValue;
+          }
+        }
+
+        // Update the score of the userToChallenge
+        if (userToChallenge !== null) {
+          await UserToChallengeRepository.save({
+            ...userToChallenge,
+            challengeScore:
+              Number(userToChallenge.challengeScore) - removeScore,
+          });
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }
 }

@@ -2,6 +2,9 @@ import dataSource from "../utils";
 import * as argon2 from "argon2";
 import { Mutation, Resolver } from "type-graphql";
 import { User } from "../entity/User";
+import { Action } from "../entity/Action";
+import { Challenge } from "../entity/Challenge";
+import { UserToChallenge } from "../entity/UserToChallenge";
 
 @Resolver()
 export class DevsResolver {
@@ -25,20 +28,62 @@ export class DevsResolver {
       }
 
       // peupler la base de données
-      const admin = await dataSource
-        .getRepository(User)
-        .findOne({ where: { email: "admin@keops.fr" } });
-      if (admin === null) {
+      // Admin
+      async function createAdmin(): Promise<User> {
         const password = await argon2.hash("superSecret");
-        await dataSource
-          .getRepository(User)
-          .save({
-            email: "admin@keops.fr",
-            password,
-            isAdmin: true,
-            createdAt: new Date(),
-          });
+        return await dataSource.getRepository(User).save({
+          email: "admin@keops.fr",
+          password,
+          isAdmin: true,
+          createdAt: new Date(),
+        });
       }
+      const admin = await createAdmin();
+
+      // Actions
+      if (admin !== null) {
+        await dataSource.getRepository(Action).save({
+          title: "Flexitarien",
+          description: "Manger moins de viande",
+          createdBy: admin,
+          createdAt: new Date(),
+        });
+        await dataSource.getRepository(Action).save({
+          title: "Cyclo-Boulot",
+          description: "Aller au travail en vélo",
+          createdBy: admin,
+          createdAt: new Date(),
+          successValue: 30,
+        });
+        await dataSource.getRepository(Action).save({
+          title: "One Two Tri",
+          description: "Trier ses déchets",
+          createdBy: admin,
+          createdAt: new Date(),
+        });
+
+        // Challenge
+        const createChallenge = async (): Promise<Challenge> => {
+          return await dataSource.getRepository(Challenge).save({
+            length: 7,
+            start_date: new Date("2050/01/01"),
+            name: "Super Future Challenge",
+            createdBy: admin,
+            createdAt: new Date(),
+            actions: [{ id: "1" }, { id: "2" }],
+          });
+        };
+
+        const challenge = await createChallenge();
+
+        // UserToChallenge Admin - Challenge.first
+        await dataSource.getRepository(UserToChallenge).save({
+          isAccepted: true,
+          user: admin,
+          challenge: { id: challenge.id },
+        });
+      }
+
       return true;
     } catch (error) {
       return false;

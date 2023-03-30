@@ -16,6 +16,7 @@ import {
 import { IContext } from "../auth";
 import { setActionToChallengeFct } from "./ActionsToChallenge";
 import { UserToChallenge } from "../entity/UserToChallenge";
+import { BaseEntity } from "typeorm";
 
 // Import de l'entity UTC ✓
 // Création d'un challenge

@@ -10,6 +10,7 @@ import { ActionsResolver } from "./resolvers/Actions";
 import { ActionsToChallengesResolver } from "./resolvers/ActionsToChallenge";
 import { DevsResolver } from "./resolvers/Devs";
 import { SuccessResolver } from "./resolvers/Success";
+import { startTasks } from "./cronJobs";
 
 const PORT = 4000;
 
@@ -57,6 +58,7 @@ async function bootstrap(): Promise<void> {
     //   Démarrage du server
     const { url } = await server.listen(PORT);
     console.log(`Server is running, GraphQL Playground available at ${url}`);
+    await startTasks();
   } catch (error) {
     console.log("DB connexion failed");
     console.log(error);

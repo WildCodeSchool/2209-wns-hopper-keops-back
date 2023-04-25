@@ -7,6 +7,7 @@ import {
   ManyToOne,
   ManyToMany,
   JoinTable,
+  BaseEntity,
 } from "typeorm";
 import { Action } from "./Action";
 import { UniqueRelation } from "./common";
@@ -18,7 +19,7 @@ import { UserToChallenge } from "./UserToChallenge";
 
 @Entity()
 @ObjectType()
-export class Challenge {
+export class Challenge extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: string;

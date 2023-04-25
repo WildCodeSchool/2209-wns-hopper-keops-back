@@ -20,9 +20,11 @@ export const setActionToChallengeFct = async (
     if (challenge === null) {
       return null;
     }
+
     const actionsToSave = await actionRepository.find({
       where: { id: In(actions.map(({ id }) => id)) },
     });
+
     return await challengeRepository.save({
       ...challenge,
       actions: actionsToSave,

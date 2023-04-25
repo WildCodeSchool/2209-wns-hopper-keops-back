@@ -58,7 +58,7 @@ async function bootstrap(): Promise<void> {
     //   Démarrage du server
     const { url } = await server.listen(PORT);
     console.log(`Server is running, GraphQL Playground available at ${url}`);
-    startTasks();
+    await startTasks();
   } catch (error) {
     console.log("DB connexion failed");
     console.log(error);

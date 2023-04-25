@@ -1,6 +1,9 @@
-name: jest-and-docker-ci
+name: prod-ci
 
-on: push
+on:
+  pull_request:
+    branches:
+      - "main"
 
 jobs:
   test-back:
@@ -19,7 +22,7 @@ jobs:
         run: npm i && npm run test-ci
   docker:
     needs: test-back
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
@@ -34,5 +37,6 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/epikeco_back:latest

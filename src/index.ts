@@ -9,6 +9,7 @@ import { UserToChallengesResolver } from "./resolvers/UsersToChallenges";
 import { ActionsResolver } from "./resolvers/Actions";
 import { ActionsToChallengesResolver } from "./resolvers/ActionsToChallenge";
 import { DevsResolver } from "./resolvers/Devs";
+import { SuccessResolver } from "./resolvers/Success";
 
 const PORT = 4000;
 
@@ -24,6 +25,7 @@ async function bootstrap(): Promise<void> {
       ActionsResolver,
       ActionsToChallengesResolver,
       ...(process.env.DEV !== undefined ? [DevsResolver] : []),
+      SuccessResolver,
     ],
     authChecker,
   });

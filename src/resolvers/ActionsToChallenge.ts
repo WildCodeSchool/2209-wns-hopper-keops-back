@@ -37,7 +37,7 @@ export class ActionsToChallengesResolver {
   @Authorized()
   @Mutation(() => Challenge)
   // A optimiser !!
-  async setActionToChallenge(
+  async updateActionToChallenge(
     @Arg("challengeId", () => ID) challengeId: string,
     @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput
   ): Promise<Challenge | null> {

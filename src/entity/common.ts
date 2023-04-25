@@ -5,3 +5,12 @@ export class UniqueRelation {
   @Field(() => ID)
   id: string;
 }
+
+@InputType()
+export class SuccessRelation {
+  @Field(() => Date)
+  date: Date;
+
+  @Field(() => UniqueRelation)
+  action: UniqueRelation;
+}

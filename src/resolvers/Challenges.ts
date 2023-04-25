@@ -85,4 +85,24 @@ export class ChallengesResolver {
       ],
     });
   }
+
+  @Authorized()
+  @Query(() => [Challenge])
+  async readMyChallenges(
+    @Ctx() context: IContext
+  ): Promise<Challenge[] | null> {
+    return await repository.find({
+      where: {
+        userToChallenges: {
+          user: { id: context.me.id },
+        },
+      },
+      relations: [
+        "actions",
+        "createdBy",
+        "userToChallenges",
+        "userToChallenges.user",
+      ],
+    });
+  }
 }

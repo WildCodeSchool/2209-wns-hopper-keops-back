@@ -32,7 +32,7 @@ export class User {
   @Field(() => ID)
   id: string;
 
-  @Column({ default: "User" })
+  @Column({ unique: true })
   @Field()
   name: string;
 
@@ -42,7 +42,7 @@ export class User {
   password: string;
 
   @Column({ unique: true })
-  @Field()
+  @Field({ nullable: true })
   @UseMiddleware(IsUser)
   email: string;
 
@@ -81,6 +81,8 @@ export class User {
 
 @InputType()
 export class UserInput {
+  name: string;
+
   @Field()
   @Length(8, 60)
   password: string;

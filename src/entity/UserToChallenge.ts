@@ -22,7 +22,7 @@ export class UserToChallenge {
   @Field(() => ID)
   id: string;
 
-  @Column({ default: false })
+  @Column({ default: true })
   @Field()
   isAccepted!: boolean;
 

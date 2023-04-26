@@ -98,7 +98,7 @@ export class ChallengesResolver {
   }
 
   @Authorized()
-  @Query(() => Challenge)
+  @Query(() => Challenge, {nullable : true})
   async readOneChallenge(
     @Arg("challengeID", () => ID) challengeID: string
   ): Promise<Challenge | null> {

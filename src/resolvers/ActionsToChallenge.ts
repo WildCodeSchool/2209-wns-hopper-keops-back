@@ -1,9 +1,10 @@
 import dataSource from "../utils";
-import { Arg, Authorized, ID, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
 import { ActionToChallengeInput, Challenge } from "../entity/Challenge";
 import { Action } from "../entity/Action";
 import { UniqueRelation } from "../entity/common";
 import { In } from "typeorm";
+import { IContext } from "../auth";
 
 const challengeRepository = dataSource.getRepository(Challenge);
 const actionRepository = dataSource.getRepository(Action);
@@ -37,12 +38,23 @@ export const setActionToChallengeFct = async (
 @Resolver()
 export class ActionsToChallengesResolver {
   @Authorized()
-  @Mutation(() => Challenge)
+  @Mutation(() => Challenge, { nullable: true })
   // A optimiser !!
   async updateActionToChallenge(
     @Arg("challengeId", () => ID) challengeId: string,
-    @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput
+    @Arg("data", () => ActionToChallengeInput) data: ActionToChallengeInput,
+    @Ctx() context: IContext
   ): Promise<Challenge | null> {
-    return await setActionToChallengeFct(data.actions, challengeId);
+    try {
+      const challenge = await challengeRepository.findOneOrFail({
+        where: { id: challengeId, createdBy: { id: context.me.id } },
+      });
+      if (challenge.status === "Non commencé") {
+        return await setActionToChallengeFct(data.actions, challengeId);
+      } else throw new Error(`Challenge ${challenge.status}`);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

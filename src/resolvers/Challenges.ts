@@ -26,7 +26,7 @@ const UserToChallengeRepository = dataSource.getRepository(UserToChallenge);
 @Resolver()
 export class ChallengesResolver {
   @Authorized()
-  @Mutation(() => Challenge)
+  @Mutation(() => Challenge, { nullable: true })
   async createChallenge(
     @Arg("data", () => CreateChallengeInput) data: CreateChallengeInput,
     @Ctx() context: IContext
@@ -34,11 +34,15 @@ export class ChallengesResolver {
     try {
       let isInProgress = false;
 
-      if (data.start_date.getDate() < new Date().getDate()) {
+      if (
+        data.start_date.toLocaleDateString() < new Date().toLocaleDateString()
+      ) {
         throw new Error("Date invalide !");
       }
 
-      if (data.start_date.getDate() === new Date().getDate()) {
+      if (
+        data.start_date.toLocaleDateString() === new Date().toLocaleDateString()
+      ) {
         isInProgress = true;
       }
 
@@ -66,31 +70,35 @@ export class ChallengesResolver {
   }
 
   @Authorized()
-  @Mutation(() => Challenge)
+  @Mutation(() => Challenge, { nullable: true })
   async updateChallenge(
     @Arg("data", () => UpdateChallengeInput) data: UpdateChallengeInput,
     @Arg("challengeId", () => ID) challengeId: string,
     @Ctx() context: IContext
   ): Promise<Challenge | null> {
     try {
-      if (data.start_date.getDate() < new Date().getDate()) {
+      if (
+        data.start_date.toLocaleDateString() < new Date().toLocaleDateString()
+      ) {
         throw new Error("Date invalide !");
       }
       let isInProgress = false;
-      
-      if (data.start_date.getDate() === new Date().getDate()) {
+
+      if (
+        data.start_date.toLocaleDateString() === new Date().toLocaleDateString()
+      ) {
         isInProgress = true;
       }
 
       const challenge = await repository.findOneOrFail({
         where: { id: challengeId, createdBy: { id: context.me.id } },
       });
-
-      data.updatedAt = new Date();
-      data.updatedBy = context.me;
-      data.is_in_progress = isInProgress;
-
-      return await repository.save({ ...challenge, ...data });
+      if (challenge.status === "Non commencé") {
+        data.updatedAt = new Date();
+        data.updatedBy = context.me;
+        data.is_in_progress = isInProgress;
+        return await repository.save({ ...challenge, ...data });
+      } else throw new Error(`Challenge ${challenge.status}`);
     } catch (error) {
       console.log(error);
       return null;
@@ -98,18 +106,19 @@ export class ChallengesResolver {
   }
 
   @Authorized()
-  @Query(() => Challenge, {nullable : true})
+  @Query(() => Challenge, { nullable: true })
   async readOneChallenge(
     @Arg("challengeID", () => ID) challengeID: string
   ): Promise<Challenge | null> {
-    return await repository.findOne({where: { id:challengeID}, 
-    relations: [
-    "actions", 
-    "createdBy",
-    "userToChallenges",
-    "userToChallenges.user"
-    ],
-  });
+    return await repository.findOne({
+      where: { id: challengeID },
+      relations: [
+        "actions",
+        "createdBy",
+        "userToChallenges",
+        "userToChallenges.user",
+      ],
+    });
   }
 
   @Authorized()

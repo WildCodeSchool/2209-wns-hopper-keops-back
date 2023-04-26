@@ -118,6 +118,7 @@ export class CreateChallengeInput {
   @Field(() => [UniqueRelation])
   actions: UniqueRelation[];
 
+  is_in_progress: boolean;
   createdAt: Date;
   createdBy: User;
 }

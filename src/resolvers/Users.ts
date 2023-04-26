@@ -21,6 +21,7 @@ export class UsersResolver {
   async createUser(
     @Arg("data", () => UserInput) data: UserInput
   ): Promise<User> {
+    data.name = `user-${new Date().toISOString()}`;
     data.password = await argon2.hash(data.password);
     data.createdAt = new Date();
     const user = await repository.save(data);
@@ -84,7 +85,7 @@ export class UsersResolver {
   //! Limit informations from DB when user profile != current user (password, email)
   async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
-    return user === null ? null : user  ;
+    return user === null ? null : user;
   }
 
   @Authorized()

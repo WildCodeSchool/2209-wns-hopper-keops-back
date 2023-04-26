@@ -51,6 +51,7 @@ async function bootstrap(): Promise<void> {
   });
 
   try {
+    console.log("Date du serveur !!!", new Date());
     // Connexion à la base de donnée (Attente de la connexion avant de passer à la suite)
     await dataSource.initialize();
     console.log("DB connected");

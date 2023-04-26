@@ -32,10 +32,21 @@ export class ChallengesResolver {
     @Ctx() context: IContext
   ): Promise<Challenge | null> {
     try {
+      let isInProgress = false;
+
+      if (data.start_date < new Date()) {
+        throw new Error("Date invalide !");
+      }
+
+      if (data.start_date.getDate() === new Date().getDate()) {
+        isInProgress = true;
+      }
+
       const challenge = await repository.save({
         length: data.length,
         start_date: data.start_date,
         name: data.name,
+        is_in_progress: isInProgress,
         createdBy: context.me,
         createdAt: new Date(),
       });
@@ -48,7 +59,8 @@ export class ChallengesResolver {
       });
 
       return await setActionToChallengeFct(data.actions, challenge.id);
-    } catch {
+    } catch (error) {
+      console.log(error);
       return null;
     }
   }
@@ -57,12 +69,26 @@ export class ChallengesResolver {
   @Mutation(() => Challenge)
   async updateChallenge(
     @Arg("data", () => UpdateChallengeInput) data: UpdateChallengeInput,
+    @Arg("challengeId", () => ID) challengeId: string,
     @Ctx() context: IContext
-  ): Promise<Challenge> {
-    data.updatedAt = new Date();
-    data.updatedBy = context.me;
-    const challenge = await repository.save(data);
-    return challenge;
+  ): Promise<Challenge | null> {
+    try {
+      if (data.start_date < new Date()) {
+        throw new Error("Date invalide !");
+      }
+
+      const challenge = await repository.findOneOrFail({
+        where: { id: challengeId, createdBy: { id: context.me.id } },
+      });
+
+      data.updatedAt = new Date();
+      data.updatedBy = context.me;
+
+      return await repository.save({ ...challenge, ...data });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
   @Authorized()
@@ -77,6 +103,26 @@ export class ChallengesResolver {
   @Query(() => [Challenge])
   async readAllChallenges(): Promise<Challenge[] | null> {
     return await repository.find({
+      relations: [
+        "actions",
+        "createdBy",
+        "userToChallenges",
+        "userToChallenges.user",
+      ],
+    });
+  }
+
+  @Authorized()
+  @Query(() => [Challenge])
+  async readMyChallenges(
+    @Ctx() context: IContext
+  ): Promise<Challenge[] | null> {
+    return await repository.find({
+      where: {
+        userToChallenges: {
+          user: { id: context.me.id },
+        },
+      },
       relations: [
         "actions",
         "createdBy",

@@ -34,7 +34,7 @@ export class ChallengesResolver {
     try {
       let isInProgress = false;
 
-      if (data.start_date < new Date()) {
+      if (data.start_date.getDate() < new Date().getDate()) {
         throw new Error("Date invalide !");
       }
 
@@ -73,8 +73,13 @@ export class ChallengesResolver {
     @Ctx() context: IContext
   ): Promise<Challenge | null> {
     try {
-      if (data.start_date < new Date()) {
+      if (data.start_date.getDate() < new Date().getDate()) {
         throw new Error("Date invalide !");
+      }
+      let isInProgress = false;
+      
+      if (data.start_date.getDate() === new Date().getDate()) {
+        isInProgress = true;
       }
 
       const challenge = await repository.findOneOrFail({
@@ -83,6 +88,7 @@ export class ChallengesResolver {
 
       data.updatedAt = new Date();
       data.updatedBy = context.me;
+      data.is_in_progress = isInProgress;
 
       return await repository.save({ ...challenge, ...data });
     } catch (error) {
@@ -96,7 +102,14 @@ export class ChallengesResolver {
   async readOneChallenge(
     @Arg("challengeID", () => ID) challengeID: string
   ): Promise<Challenge | null> {
-    return await repository.findOneBy({ id: challengeID });
+    return await repository.findOne({where: { id:challengeID}, 
+    relations: [
+    "actions", 
+    "createdBy",
+    "userToChallenges",
+    "userToChallenges.user"
+    ],
+  });
   }
 
   @Authorized()

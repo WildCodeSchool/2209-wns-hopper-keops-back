@@ -84,7 +84,7 @@ export class UsersResolver {
   //! Limit informations from DB when user profile != current user (password, email)
   async readUser(@Arg("id", () => ID) id: string): Promise<User | null> {
     const user = await repository.findOne({ where: { id } });
-    return user === null ? null : user;
+    return user === null ? null : user  ;
   }
 
   @Authorized()

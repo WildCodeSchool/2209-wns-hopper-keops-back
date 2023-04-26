@@ -100,6 +100,7 @@ export class UpdateChallengeInput {
   @Field()
   name: string;
 
+  is_in_progress:boolean;
   updatedAt: Date;
   updatedBy: User;
 }

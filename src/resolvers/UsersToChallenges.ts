@@ -54,7 +54,7 @@ export class UserToChallengesResolver {
       // return null;
 
       const userToChallenge = await repository.findOne({
-        where: { user: data.user, challenge: data.challenge },
+        where: { user: { id: data.user.id }, challenge: data.challenge },
       });
       return await repository.save({
         ...userToChallenge,

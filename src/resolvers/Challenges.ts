@@ -93,6 +93,7 @@ export class ChallengesResolver {
       const challenge = await repository.findOneOrFail({
         where: { id: challengeId, createdBy: { id: context.me.id } },
       });
+
       if (challenge.status === "Non commencé") {
         data.updatedAt = new Date();
         data.updatedBy = context.me;

@@ -71,7 +71,7 @@ export class Challenge extends BaseEntity {
   createdAt: Date;
 
   // User
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @Field(() => User)
   createdBy: User;
 
@@ -88,7 +88,7 @@ export class Challenge extends BaseEntity {
   actions: Action[];
 
   // User
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @Field(() => User)
   updatedBy: User;
 

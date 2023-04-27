@@ -4,6 +4,7 @@ import { Challenge } from "./entity/Challenge";
 import { Success } from "./entity/Success";
 import { User } from "./entity/User";
 import { UserToChallenge } from "./entity/UserToChallenge";
+import { ChallengeSubscriber } from "./subscribers/ChallengeSubscriber";
 
 // Identifiant de connexion à la base de donnée et choix des tables à récupérer
 const dataSource = new DataSource({
@@ -19,6 +20,7 @@ const dataSource = new DataSource({
   // option d'affichage des erreur et requête SQL dans la console
   logging: ["query", "error"],
   entities: [User, Challenge, UserToChallenge, Action, Success],
+  subscribers: [ChallengeSubscriber],
 });
 
 export default dataSource;

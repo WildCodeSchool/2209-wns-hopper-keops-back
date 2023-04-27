@@ -42,10 +42,10 @@ export class DevsResolver {
       const admin = await createAdmin();
 
       // User
-      async function createUser(): Promise<User> {
+      async function createUser(email: string): Promise<User> {
         const password = await argon2.hash("userSuperSecret");
         return await dataSource.getRepository(User).save({
-          email: "user1@keops.fr",
+          email,
           password,
           isAdmin: false,
           createdAt: new Date(),
@@ -53,7 +53,8 @@ export class DevsResolver {
         });
       }
 
-      await createUser();
+      const user1 = await createUser("user1@keops.fr");
+      const user2 = await createUser("user2@keops.fr");
 
       // Actions
       if (admin !== null) {
@@ -89,13 +90,38 @@ export class DevsResolver {
           });
         };
 
-        const challenge = await createChallenge();
+        const createUserChallenge = async (): Promise<Challenge> => {
+          return await dataSource.getRepository(Challenge).save({
+            length: 4,
+            start_date: new Date("2023/07/02"),
+            name: "Super User Challenge",
+            createdBy: user1,
+            createdAt: new Date(),
+            actions: [{ id: "1" }, { id: "3" }],
+          });
+        };
+
+        const challengeAdmin = await createChallenge();
+        const challengeUser = await createUserChallenge();
 
         // UserToChallenge Admin - Challenge.first
         await dataSource.getRepository(UserToChallenge).save({
           isAccepted: true,
           user: admin,
-          challenge: { id: challenge.id },
+          challenge: { id: challengeAdmin.id },
+        });
+
+        // UserToChallenge User - Challenge.second
+        await dataSource.getRepository(UserToChallenge).save({
+          isAccepted: true,
+          user: user1,
+          challenge: { id: challengeUser.id },
+        });
+
+        await dataSource.getRepository(UserToChallenge).save({
+          isAccepted: true,
+          user: user2,
+          challenge: { id: challengeUser.id },
         });
       }
 

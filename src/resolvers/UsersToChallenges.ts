@@ -9,11 +9,6 @@ import { IContext } from "../auth";
 
 const repository = dataSource.getRepository(UserToChallenge);
 
-// interface IRequestSuccess {
-//   success: boolean;
-//   error?: Error;
-// }
-
 @Resolver()
 export class UserToChallengesResolver {
   @Authorized()
@@ -66,21 +61,31 @@ export class UserToChallengesResolver {
   }
 
   @Authorized()
-  @Mutation(() => UserToChallenge)
+  @Mutation(() => UserToChallenge, { nullable: true })
   async deleteUserToChallenge(
     @Arg("data", () => RemoveUserToChallengeInput)
     data: RemoveUserToChallengeInput,
     @Ctx() context: IContext
   ): Promise<UserToChallenge | null> {
-    const userToChallengeToRemove = await repository.findOne({
-      where: { id: data.userToChallengeId },
-      relations: ["challenge.createdBy"],
-    });
+    try {
+      // Find the user challenge connection with challenge admin and user relation
+      const userToChallengeToRemove = await repository.findOneOrFail({
+        where: { id: data.userToChallengeId },
+        relations: ["challenge.createdBy", "user"],
+      });
 
-    if (userToChallengeToRemove?.challenge?.createdBy.id === context.me.id) {
-      return await repository.remove(userToChallengeToRemove);
+      // The current user is the challenge admin or the owner of the user challenge connection
+      if (
+        userToChallengeToRemove.challenge.createdBy.id === context.me.id ||
+        userToChallengeToRemove.user.id === context.me.id
+      ) {
+        return await repository.remove(userToChallengeToRemove);
+      } else {
+        throw new Error("Your not able to do that");
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
     }
-
-    return null;
   }
 }

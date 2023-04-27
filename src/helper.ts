@@ -11,3 +11,8 @@ export function mergeObject(
   }
   return newObject;
 }
+
+export function formatDate(date: Date): string {
+  // Format to yyyy-mm-dd
+  return date.toISOString().substring(0, 10);
+}

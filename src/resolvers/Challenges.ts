@@ -16,6 +16,7 @@ import {
 import { IContext } from "../auth";
 import { setActionToChallengeFct } from "./ActionsToChallenge";
 import { UserToChallenge } from "../entity/UserToChallenge";
+import { formatDate } from "../helper";
 
 // Import de l'entity UTC ✓
 // Création d'un challenge
@@ -34,15 +35,11 @@ export class ChallengesResolver {
     try {
       let isInProgress = false;
 
-      if (
-        data.start_date.toLocaleDateString() < new Date().toLocaleDateString()
-      ) {
+      if (formatDate(data.start_date) < formatDate(new Date())) {
         throw new Error("Date invalide !");
       }
 
-      if (
-        data.start_date.toLocaleDateString() === new Date().toLocaleDateString()
-      ) {
+      if (formatDate(data.start_date) === formatDate(new Date())) {
         isInProgress = true;
       }
 
@@ -77,16 +74,12 @@ export class ChallengesResolver {
     @Ctx() context: IContext
   ): Promise<Challenge | null> {
     try {
-      if (
-        data.start_date.toLocaleDateString() < new Date().toLocaleDateString()
-      ) {
+      if (formatDate(data.start_date) < formatDate(new Date())) {
         throw new Error("Date invalide !");
       }
       let isInProgress = false;
 
-      if (
-        data.start_date.toLocaleDateString() === new Date().toLocaleDateString()
-      ) {
+      if (formatDate(data.start_date) === formatDate(new Date())) {
         isInProgress = true;
       }
 

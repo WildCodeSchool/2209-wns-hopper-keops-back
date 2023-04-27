@@ -13,6 +13,7 @@ import { Action } from "./Action";
 import { UniqueRelation } from "./common";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
+import { formatDate } from "../helper";
 
 // Création et gestion du schema de donnée de wilder TypeORM
 // Class de lecture TypeGraphQL
@@ -56,7 +57,7 @@ export class Challenge extends BaseEntity {
     } else if (
       // challenge is over, so I cannot update relation between action and challenge
       !this.is_in_progress &&
-      this.end_date.toLocaleDateString() < new Date().toLocaleDateString()
+      formatDate(this.end_date) < formatDate(new Date())
     ) {
       return "Terminé";
     }

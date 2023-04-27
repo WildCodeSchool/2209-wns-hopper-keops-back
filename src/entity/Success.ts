@@ -27,15 +27,15 @@ export class Success {
   date: Date;
 
   // User
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @Field(() => User)
   user: User;
 
-  @ManyToOne(() => Action)
+  @ManyToOne(() => Action, { onDelete: "CASCADE" })
   @Field(() => Action)
   action: Action;
 
-  @ManyToOne(() => Challenge)
+  @ManyToOne(() => Challenge, { onDelete: "CASCADE" })
   @Field(() => Challenge)
   challenge: Challenge;
 }

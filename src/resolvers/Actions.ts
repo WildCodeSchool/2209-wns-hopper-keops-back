@@ -41,8 +41,13 @@ export class ActionsResolver {
   }
 
   @Authorized()
-  @Query(() => [Action])
+  @Query(() => [Action], { nullable: true })
   async readAllActions(): Promise<Action[] | null> {
-    return await repository.find();
+    try {
+      return await repository.find();
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

@@ -32,12 +32,14 @@ export class UserToChallenge {
 
   @ManyToOne(() => User, (user) => user.userToChallenges, {
     onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   })
   @Field(() => User)
   user!: User;
 
   @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges, {
     onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   })
   @Field(() => Challenge)
   challenge!: Challenge;

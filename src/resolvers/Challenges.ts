@@ -111,47 +111,80 @@ export class ChallengesResolver {
   async readOneChallenge(
     @Arg("challengeID", () => ID) challengeID: string
   ): Promise<Challenge | null> {
-    return await repository.findOne({
-      where: { id: challengeID },
-      relations: [
-        "actions",
-        "createdBy",
-        "userToChallenges",
-        "userToChallenges.user",
-      ],
-    });
+    try {
+      return await repository.findOneOrFail({
+        where: { id: challengeID },
+        relations: [
+          "actions",
+          "createdBy",
+          "userToChallenges",
+          "userToChallenges.user",
+        ],
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
   @Authorized()
-  @Query(() => [Challenge])
+  @Query(() => [Challenge], { nullable: true })
   async readAllChallenges(): Promise<Challenge[] | null> {
-    return await repository.find({
-      relations: [
-        "actions",
-        "createdBy",
-        "userToChallenges",
-        "userToChallenges.user",
-      ],
-    });
+    try {
+      return await repository.find({
+        relations: [
+          "actions",
+          "createdBy",
+          "userToChallenges",
+          "userToChallenges.user",
+        ],
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 
   @Authorized()
-  @Query(() => [Challenge])
+  @Query(() => [Challenge], { nullable: true })
   async readMyChallenges(
     @Ctx() context: IContext
   ): Promise<Challenge[] | null> {
-    return await repository.find({
-      where: {
-        userToChallenges: {
-          user: { id: context.me.id },
+    try {
+      return await repository.find({
+        where: {
+          userToChallenges: {
+            user: { id: context.me.id },
+          },
         },
-      },
-      relations: [
-        "actions",
-        "createdBy",
-        "userToChallenges",
-        "userToChallenges.user",
-      ],
-    });
+        relations: [
+          "actions",
+          "createdBy",
+          "userToChallenges",
+          "userToChallenges.user",
+        ],
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  @Authorized()
+  @Mutation(() => Challenge, { nullable: true })
+  async deleteMyChallenge(
+    @Arg("challengeId", () => ID) challengeId: string,
+    @Ctx() context: IContext
+  ): Promise<Challenge | null> {
+    try {
+      const challenge = await repository.findOneOrFail({
+        where: { id: challengeId, createdBy: { id: context.me.id } },
+      });
+
+      return await repository.remove(challenge);
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

@@ -90,7 +90,7 @@ export class UsersResolver {
 
   @Authorized()
   @Mutation(() => User, { nullable: true })
-  async updateUser(
+  async updateMe(
     @Arg("data", () => UpdateUserInput) data: UpdateUserInput,
     @Ctx() context: IContext
   ): Promise<User | null> {
@@ -104,11 +104,12 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  async updatePassUser(
+  async updatePassMe(
     @Arg("password") password: string,
-    @Arg("id", () => ID) id: string
+    @Ctx() context: IContext
   ): Promise<User | null> {
-    const user = await repository.findOne({ where: { id } });
+    const user = await repository.findOne({ where: { id: context.me.id } });
+    // Prévoir envoi de mail pour changer le mot de passe
     if (user === null) {
       return null;
     } else {
@@ -119,8 +120,8 @@ export class UsersResolver {
 
   @Authorized()
   @Mutation(() => User)
-  async deleteUser(@Arg("id", () => ID) id: string): Promise<User | null> {
-    const user = await repository.findOne({ where: { id } });
+  async deleteMe(@Ctx() context: IContext): Promise<User | null> {
+    const user = await repository.findOne({ where: { id: context.me.id } });
     if (user === null) {
       return null;
     } else {

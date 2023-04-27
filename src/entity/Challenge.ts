@@ -81,6 +81,7 @@ export class Challenge extends BaseEntity {
 
   @ManyToMany(() => Action, (action) => action.challenges, {
     onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   })
   @Field(() => [Action])
   @JoinTable()

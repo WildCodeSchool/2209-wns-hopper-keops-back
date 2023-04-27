@@ -36,9 +36,24 @@ export class DevsResolver {
           password,
           isAdmin: true,
           createdAt: new Date(),
+          name: `admin-${new Date().toISOString()}`,
         });
       }
       const admin = await createAdmin();
+
+      // User
+      async function createUser(): Promise<User> {
+        const password = await argon2.hash("userSuperSecret");
+        return await dataSource.getRepository(User).save({
+          email: "user1@keops.fr",
+          password,
+          isAdmin: false,
+          createdAt: new Date(),
+          name: `user-${new Date().toISOString()}`,
+        });
+      }
+
+      await createUser();
 
       // Actions
       if (admin !== null) {

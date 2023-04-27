@@ -92,9 +92,9 @@ export class UsersResolver {
   @Mutation(() => User, { nullable: true })
   async updateUser(
     @Arg("data", () => UpdateUserInput) data: UpdateUserInput,
-    @Arg("id", () => ID) id: string
+    @Ctx() context: IContext
   ): Promise<User | null> {
-    const user = await repository.findOne({ where: { id } });
+    const user = await repository.findOne({ where: { id: context.me.id } });
     if (user === null) {
       return null;
     } else {

@@ -100,9 +100,5 @@ export class UpdateUserInput {
   @Length(2, 60)
   name: string;
 
-  @Field()
-  @IsEmail()
-  email: string;
-
   updatedAt: Date;
 }

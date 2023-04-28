@@ -83,3 +83,9 @@ export class DeleteSuccessesInput {
   @Field(() => UniqueRelation)
   challenge: UniqueRelation;
 }
+
+@InputType()
+export class ReadChallengeSuccessesInput {
+  @Field(() => [ID])
+  challengeId: string;
+}

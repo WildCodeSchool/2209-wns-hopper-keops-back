@@ -18,24 +18,27 @@ export class ChallengeSubscriber
   }
 
   /**
-   * Called before Challenge insertion.
+   * Called after Challenge update.
    */
   async afterUpdate(event: UpdateEvent<Challenge>): Promise<void> {
-    // Connection to the repositories
-    const repositoryChallenge = event.connection.getRepository(Challenge);
-    const repositoryUser = event.connection.getRepository(User);
+    // Don't do anything when the challenge status was 'Terminé' before update
+    if (event.databaseEntity.status !== "Terminé") {
+      // Connection to the repositories
+      const repositoryChallenge = event.connection.getRepository(Challenge);
+      const repositoryUser = event.connection.getRepository(User);
 
-    // Find the challenge in db with all the users
-    const challenge = await repositoryChallenge.findOne({
-      where: { id: event.entity?.id },
-      relations: ["userToChallenges", "userToChallenges.user"],
-    });
+      // Find the challenge in db with all the users
+      const challenge = await repositoryChallenge.findOne({
+        where: { id: event.entity?.id },
+        relations: ["userToChallenges", "userToChallenges.user"],
+      });
 
-    // When challenge was found and the status is 'Terminé' update global score of each user nether nothing appened
-    if (challenge !== null && challenge.status === "Terminé") {
-      for (const userToChallenge of challenge.userToChallenges) {
-        userToChallenge.user.score += userToChallenge.challengeScore;
-        await repositoryUser.save(userToChallenge.user);
+      // When challenge was found and the status is toggling to 'Terminé' in the last updtate so update global score of each user nether nothing appened
+      if (challenge !== null && challenge.status === "Terminé") {
+        for (const userToChallenge of challenge.userToChallenges) {
+          userToChallenge.user.score += userToChallenge.challengeScore;
+          await repositoryUser.save(userToChallenge.user);
+        }
       }
     }
   }

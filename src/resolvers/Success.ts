@@ -1,11 +1,12 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import {
   Success,
   DeleteSuccessInput,
   CreateSuccessInput,
   CreateSuccessesInput,
   DeleteSuccessesInput,
+  ReadChallengeSuccessesInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
 import { UserToChallenge } from "../entity/UserToChallenge";
@@ -236,6 +237,27 @@ export class SuccessResolver {
     } catch (err) {
       console.error(err);
       return false;
+    }
+  }
+
+  @Authorized()
+  @Query(() => [Success], { nullable: true })
+  async readSuccesses(
+    @Arg("data", () => ReadChallengeSuccessesInput)
+    data: ReadChallengeSuccessesInput,
+    @Ctx() context: IContext
+  ): Promise<Success[] | null> {
+    try {
+      return await dataSource.getRepository(Success).find({
+        where: {
+          challenge: { id: data.challengeId },
+          user: { id: context.me.id },
+        },
+        relations: ["actions"],
+      });
+    } catch (err) {
+      console.error(err);
+      return null;
     }
   }
 }

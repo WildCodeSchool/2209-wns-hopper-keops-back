@@ -1,5 +1,13 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
 import {
   Success,
   DeleteSuccessInput,
@@ -21,6 +29,10 @@ const ActionRepository = dataSource.getRepository(Action);
 interface IActionSuccess {
   id: string;
   successValue: number;
+}
+
+interface IChallengeSuccesses {
+  [key: string]: [] | null;
 }
 
 @Resolver()
@@ -238,4 +250,59 @@ export class SuccessResolver {
       return false;
     }
   }
+
+  @Authorized()
+  @Query(() => [Success], { nullable: true })
+  async readChallengeSuccesses(
+    @Arg("challengeId", () => ID) challengeId: string,
+    @Ctx() context: IContext
+  ): Promise<Success[] | null> {
+    try {
+      return await repository.find({
+        where: {
+          challenge: { id: challengeId },
+          user: { id: context.me.id },
+        },
+        relations: ["actions"],
+      });
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  // @Authorized()
+  // @Query(() => [Success], { nullable: true })
+  // async readChallengeSuccesses(
+  //   @Arg("challengeId", () => ID) challengeId: string,
+  //   @Ctx() context: IContext
+  // ): Promise<IChallengeSuccesses[] | null> {
+  //   try {
+  //     const successes = await repository.find({
+  //       where: {
+  //         challenge: { id: challengeId },
+  //         user: { id: context.me.id },
+  //       },
+  //       relations: ["actions"],
+  //     });
+
+  //     const filteredSuccesses = {};
+
+  //     // filteredSuccesses = { "4": [{success1}, {success2}], "12": [{success5}, {success12}]}
+
+  //     successes.forEach((success) => {
+  //       const actionId = success.action.id.toString();
+
+  //       if (Object.prototype.hasOwnProperty.call(filteredSuccesses, actionId) && actionId !== null) {
+  //         filteredSuccesses[actionId] = [];
+  //       }
+  //       return filteredSuccesses[actionId].push(success);
+  //     });
+
+  //     return filteredSuccesses;
+  //   } catch (err) {
+  //     console.error(err);
+  //     return null;
+  //   }
+  // }
 }

@@ -1,4 +1,5 @@
 import dataSource from "../utils";
+
 import {
   Arg,
   Authorized,
@@ -8,12 +9,14 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+
 import {
   Success,
   DeleteSuccessInput,
   CreateSuccessInput,
   CreateSuccessesInput,
   DeleteSuccessesInput,
+  ReadChallengeSuccessesInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
 import { UserToChallenge } from "../entity/UserToChallenge";
@@ -253,6 +256,7 @@ export class SuccessResolver {
 
   @Authorized()
   @Query(() => [Success], { nullable: true })
+
   async readChallengeSuccesses(
     @Arg("challengeId", () => ID) challengeId: string,
     @Ctx() context: IContext

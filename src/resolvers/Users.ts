@@ -12,8 +12,10 @@ import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { IContext } from "../auth";
+import { Token, TokenInput } from "../entity/Token";
 
 const repository = dataSource.getRepository(User);
+const repositoryToken = dataSource.getRepository(Token);
 
 @Resolver()
 export class UsersResolver {
@@ -62,6 +64,45 @@ export class UsersResolver {
       return null;
     }
   }
+
+  // @Mutation(() => Token, { nullable: true })
+  // async forgotPassword(
+  //   @Arg("data", () => TokenInput) data: TokenInput
+  // ): Promise<Token | null> {
+  //   try {
+  //     const user = await repository.findOne({ where: { email: data.email } });
+
+  //     if (!user) throw new Error("User does not exist");
+  //     const token = await repositoryToken.findOne({
+  //       where: { user: { id: user.id } },
+  //     });
+  //     if (token) await repositoryToken.delete(token);
+
+  //     const secret = process.env.JWT_SECRET;
+  //     if (secret === undefined) {
+  //       return null;
+  //     }
+  //     const resetToken = jwt.sign({ userId: user.id }, secret);
+  //     const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
+
+  //     await new Token({
+  //       userId: user._id,
+  //       token: hash,
+  //       createdAt: Date.now(),
+  //     }).save();
+
+  //     const link = `${clientURL}/passwordReset?token=${resetToken}&id=${user._id}`;
+  //     sendEmail(
+  //       user.email,
+  //       "Password Reset Request",
+  //       { name: user.name, link: link },
+  //       "./template/requestResetPassword.handlebars"
+  //     );
+  //     return link;
+  //   } catch (error) {
+  //     return null;
+  //   }
+  // }
 
   @Authorized()
   @Query(() => [User])

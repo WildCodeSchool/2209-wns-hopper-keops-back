@@ -16,7 +16,6 @@ import {
   CreateSuccessInput,
   CreateSuccessesInput,
   DeleteSuccessesInput,
-  ReadChallengeSuccessesInput,
 } from "../entity/Success";
 import { IContext } from "../auth";
 import { UserToChallenge } from "../entity/UserToChallenge";
@@ -32,10 +31,6 @@ const ActionRepository = dataSource.getRepository(Action);
 interface IActionSuccess {
   id: string;
   successValue: number;
-}
-
-interface IChallengeSuccesses {
-  [key: string]: [] | null;
 }
 
 @Resolver()
@@ -256,8 +251,7 @@ export class SuccessResolver {
 
   @Authorized()
   @Query(() => [Success], { nullable: true })
-
-  async readChallengeSuccesses(
+  async readMyChallengeSuccesses(
     @Arg("challengeId", () => ID) challengeId: string,
     @Ctx() context: IContext
   ): Promise<Success[] | null> {
@@ -267,7 +261,7 @@ export class SuccessResolver {
           challenge: { id: challengeId },
           user: { id: context.me.id },
         },
-        relations: ["actions"],
+        relations: ["action", "user", "user.userToChallenges"],
       });
     } catch (err) {
       console.error(err);

@@ -33,11 +33,10 @@ export class ChallengesResolver {
     @Ctx() context: IContext
   ): Promise<Challenge | null> {
     try {
-      let isInProgress = false;
-
       if (formatDate(data.start_date) < formatDate(new Date())) {
         throw new Error("Date invalide !");
       }
+      let isInProgress = false;
 
       if (formatDate(data.start_date) === formatDate(new Date())) {
         isInProgress = true;

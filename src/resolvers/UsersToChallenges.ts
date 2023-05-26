@@ -1,11 +1,12 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import {
   RemoveUserToChallengeInput,
   UserToChallenge,
   UserToChallengeInput,
 } from "../entity/UserToChallenge";
 import { IContext } from "../auth";
+import { User } from "../entity/User";
 
 const repository = dataSource.getRepository(UserToChallenge);
 
@@ -88,4 +89,31 @@ export class UserToChallengesResolver {
       return null;
     }
   }
+
+  @Authorized()
+  @Query(() => [UserToChallenge])
+  async readChallengeLeaderboard(
+    @Arg("challengeId") challengeId: string
+  ): Promise<UserToChallenge[]> {
+    try {
+      const userToChallenges = await repository.find({
+        where: { challenge: { id: challengeId } },
+        relations: ["user"],
+      });
+
+      userToChallenges.forEach((userToChallenge) => {
+        if (!userToChallenge.user) {
+          userToChallenge.user = new User();
+        }
+      });
+
+      userToChallenges.sort((a, b) => b.challengeScore - a.challengeScore);
+
+      return userToChallenges;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
 }
+

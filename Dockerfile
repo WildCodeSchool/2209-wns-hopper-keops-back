@@ -1,5 +1,5 @@
 # Environnement
-FROM node:alpine
+FROM node:16-alpine3.15
 
 # Fichiers/Dossiers nécéssaires pour mon application
 # Si le dossier n'existe pas il sera créé

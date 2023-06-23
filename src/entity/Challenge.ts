@@ -20,7 +20,7 @@ import { formatDate } from "../helper";
 @Entity()
 @ObjectType()
 export class Challenge {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   @Field(() => ID)
   id: string;
 

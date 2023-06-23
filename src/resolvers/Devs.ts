@@ -5,6 +5,7 @@ import { User } from "../entity/User";
 import { Action } from "../entity/Action";
 import { Challenge } from "../entity/Challenge";
 import { UserToChallenge } from "../entity/UserToChallenge";
+import { Uuid, UuidOptions } from "node-ts-uuid";
 
 @Resolver()
 export class DevsResolver {
@@ -27,6 +28,10 @@ export class DevsResolver {
         throw new Error(`ERROR: Cleaning database: ${JSON.stringify(error)}`);
       }
 
+      const options: UuidOptions = {
+        length: 15,
+        prefix: "user-",
+      };
       // peupler la base de données
       // Admin
       async function createAdmin(): Promise<User> {
@@ -36,7 +41,7 @@ export class DevsResolver {
           password,
           isAdmin: true,
           createdAt: new Date(),
-          name: `admin-${new Date().toISOString()}`,
+          name: Uuid.generate(options),
         });
       }
       const admin = await createAdmin();
@@ -49,7 +54,7 @@ export class DevsResolver {
           password,
           isAdmin: false,
           createdAt: new Date(),
-          name: `user-${new Date().toISOString()}`,
+          name: Uuid.generate(options),
         });
       }
 

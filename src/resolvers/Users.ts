@@ -12,6 +12,7 @@ import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { IContext } from "../auth";
+import { Uuid, UuidOptions } from "node-ts-uuid";
 
 const repository = dataSource.getRepository(User);
 
@@ -21,7 +22,20 @@ export class UsersResolver {
   async createUser(
     @Arg("data", () => UserInput) data: UserInput
   ): Promise<User> {
-    data.name = `user-${new Date().toISOString()}`;
+    const ecolosArray = [
+      "Greta",
+      "Jancovici",
+      "Barrau",
+      "Nakate",
+      "Etienne",
+      "Moritz",
+      "Clement",
+    ];
+    const options: UuidOptions = {
+      length: 15,
+      prefix: `${ecolosArray[Math.floor(Math.random() * ecolosArray.length)]}-`,
+    };
+    data.name = Uuid.generate(options);
     data.password = await argon2.hash(data.password);
     data.createdAt = new Date();
     const user = await repository.save(data);

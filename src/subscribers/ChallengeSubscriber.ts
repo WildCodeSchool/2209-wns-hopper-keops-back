@@ -39,10 +39,8 @@ export class ChallengeSubscriber
       // When challenge was found and the status is toggling to 'Terminé' in the last updtate so update global score of each user nether nothing appened
       if (challenge !== null && !challenge.is_in_progress) {
         for (const userToChallenge of challenge.userToChallenges) {
-          console.log("===> OLD SCORE: ", userToChallenge.user.score);
           userToChallenge.user.score += userToChallenge.challengeScore;
           await repositoryUser.save(userToChallenge.user);
-          console.log("===> NEW SCORE: ", userToChallenge.user.score);
         }
       }
     }

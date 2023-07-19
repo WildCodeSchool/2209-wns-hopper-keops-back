@@ -28,7 +28,7 @@ async function declareChallengesBegining(
 
     if (currentDate.getTime() < endDate) {
       challenge.is_in_progress = true;
-      await challenge.save();
+      await repository.save(challenge);
       console.log(challenge.id);
     }
   }
@@ -54,7 +54,7 @@ async function declareChallengesEnding(
 
     if (currentDate.getTime() > endDate) {
       challenge.is_in_progress = false;
-      await challenge.save();
+      await repository.save(challenge);
       console.log(challenge.id);
     } else {
       console.log(`Challenge ${challenge.id} in progress !`);
@@ -72,7 +72,7 @@ async function updateChallengeStatus(): Promise<void> {
 }
 
 export async function startTasks(): Promise<void> {
-  cron.schedule("0 1 0 * * *", async () => {
+  cron.schedule("* * * * * *", async () => {
     console.log("⌛ Updating challenge status at", new Date());
     await updateChallengeStatus();
     console.log("✅ Challenges status updated at", new Date());

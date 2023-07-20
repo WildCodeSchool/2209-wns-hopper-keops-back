@@ -140,14 +140,21 @@ export class ChallengesResolver {
   @Authorized()
   @Query(() => [Challenge], { nullable: true })
   async readMyChallenges(
-    @Ctx() context: IContext
+    @Ctx() context: IContext,
+    @Arg("filter", { nullable: true }) filter: string
   ): Promise<Challenge[] | null> {
     try {
+      const fiterFields: { [key: string]: any } = {};
+
+      if (filter === "isInProgress") {
+        fiterFields.is_in_progress = true;
+      }
       return await repository.find({
         where: {
           userToChallenges: {
             user: { id: context.me.id },
           },
+          ...fiterFields,
         },
         relations: [
           "actions",

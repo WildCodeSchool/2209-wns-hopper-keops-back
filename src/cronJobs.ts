@@ -72,7 +72,7 @@ async function updateChallengeStatus(): Promise<void> {
 }
 
 export async function startTasks(): Promise<void> {
-  cron.schedule("* * * * * *", async () => {
+  cron.schedule("0 1 0 * * *", async () => {
     console.log("⌛ Updating challenge status at", new Date());
     await updateChallengeStatus();
     console.log("✅ Challenges status updated at", new Date());

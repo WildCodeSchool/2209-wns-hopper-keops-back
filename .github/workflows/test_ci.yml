@@ -1,0 +1,19 @@
+name: test-ci
+
+on: push
+
+jobs:
+  test-back:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: secret
+        ports:
+          - 5432:5432
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install dependencies and run tests
+        run: npm i && npm run test-ci

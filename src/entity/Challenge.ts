@@ -12,6 +12,7 @@ import { Action } from "./Action";
 import { UniqueRelation } from "./common";
 import { User } from "./User";
 import { UserToChallenge } from "./UserToChallenge";
+import { formatDate } from "../helper";
 
 // Création et gestion du schema de donnée de wilder TypeORM
 // Class de lecture TypeGraphQL
@@ -19,7 +20,7 @@ import { UserToChallenge } from "./UserToChallenge";
 @Entity()
 @ObjectType()
 export class Challenge {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn("uuid")
   @Field(() => ID)
   id: string;
 
@@ -38,19 +39,39 @@ export class Challenge {
   // A modifier pour renvoyer la date de fin du challenge
   @Field()
   get end_date(): Date {
-    return new Date();
+    return new Date(
+      this.start_date.getTime() + this.length * 24 * 60 * 60 * 1000
+    );
   }
 
   @Column({ default: false })
   @Field()
   is_in_progress: boolean;
 
+  @Field()
+  get status(): string {
+    // challenge started , so I cannot update a between action and challenge
+    if (this.is_in_progress) {
+      return "En cours";
+    } else if (
+      // challenge is over, so I cannot update relation between action and challenge
+      !this.is_in_progress &&
+      formatDate(this.end_date) < formatDate(new Date())
+    ) {
+      return "Terminé";
+    }
+    // challenge is not started yet, so I can update challenge
+    else {
+      return "Non commencé";
+    }
+  }
+
   @Column()
   @Field()
   createdAt: Date;
 
   // User
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @Field(() => User)
   createdBy: User;
 
@@ -60,13 +81,14 @@ export class Challenge {
 
   @ManyToMany(() => Action, (action) => action.challenges, {
     onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   })
   @Field(() => [Action])
   @JoinTable()
   actions: Action[];
 
   // User
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: "CASCADE" })
   @Field(() => User)
   updatedBy: User;
 
@@ -99,6 +121,7 @@ export class UpdateChallengeInput {
   @Field()
   name: string;
 
+  is_in_progress: boolean;
   updatedAt: Date;
   updatedBy: User;
 }
@@ -117,6 +140,7 @@ export class CreateChallengeInput {
   @Field(() => [UniqueRelation])
   actions: UniqueRelation[];
 
+  is_in_progress: boolean;
   createdAt: Date;
   createdBy: User;
 }

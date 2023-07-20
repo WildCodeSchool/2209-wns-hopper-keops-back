@@ -12,6 +12,7 @@ import { User, UserInput, UpdateUserInput } from "../entity/User";
 import * as argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import { IContext } from "../auth";
+import { Uuid, UuidOptions } from "node-ts-uuid";
 
 const repository = dataSource.getRepository(User);
 
@@ -21,6 +22,20 @@ export class UsersResolver {
   async createUser(
     @Arg("data", () => UserInput) data: UserInput
   ): Promise<User> {
+    const ecolosArray = [
+      "Greta",
+      "Jancovici",
+      "Barrau",
+      "Nakate",
+      "Etienne",
+      "Moritz",
+      "Clement",
+    ];
+    const options: UuidOptions = {
+      length: 15,
+      prefix: `${ecolosArray[Math.floor(Math.random() * ecolosArray.length)]}-`,
+    };
+    data.name = Uuid.generate(options);
     data.password = await argon2.hash(data.password);
     data.createdAt = new Date();
     const user = await repository.save(data);
@@ -89,11 +104,11 @@ export class UsersResolver {
 
   @Authorized()
   @Mutation(() => User, { nullable: true })
-  async updateUser(
+  async updateMe(
     @Arg("data", () => UpdateUserInput) data: UpdateUserInput,
-    @Arg("id", () => ID) id: string
+    @Ctx() context: IContext
   ): Promise<User | null> {
-    const user = await repository.findOne({ where: { id } });
+    const user = await repository.findOne({ where: { id: context.me.id } });
     if (user === null) {
       return null;
     } else {
@@ -103,11 +118,12 @@ export class UsersResolver {
   }
 
   @Mutation(() => User)
-  async updatePassUser(
+  async updatePassMe(
     @Arg("password") password: string,
-    @Arg("id", () => ID) id: string
+    @Ctx() context: IContext
   ): Promise<User | null> {
-    const user = await repository.findOne({ where: { id } });
+    const user = await repository.findOne({ where: { id: context.me.id } });
+    // Prévoir envoi de mail pour changer le mot de passe
     if (user === null) {
       return null;
     } else {
@@ -118,8 +134,8 @@ export class UsersResolver {
 
   @Authorized()
   @Mutation(() => User)
-  async deleteUser(@Arg("id", () => ID) id: string): Promise<User | null> {
-    const user = await repository.findOne({ where: { id } });
+  async deleteMe(@Ctx() context: IContext): Promise<User | null> {
+    const user = await repository.findOne({ where: { id: context.me.id } });
     if (user === null) {
       return null;
     } else {

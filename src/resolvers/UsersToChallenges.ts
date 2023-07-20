@@ -1,18 +1,14 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, ID, Mutation, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, ID, Mutation, Query, Resolver } from "type-graphql";
 import {
   RemoveUserToChallengeInput,
   UserToChallenge,
   UserToChallengeInput,
 } from "../entity/UserToChallenge";
 import { IContext } from "../auth";
+import { User } from "../entity/User";
 
 const repository = dataSource.getRepository(UserToChallenge);
-
-// interface IRequestSuccess {
-//   success: boolean;
-//   error?: Error;
-// }
 
 @Resolver()
 export class UserToChallengesResolver {
@@ -54,7 +50,7 @@ export class UserToChallengesResolver {
       // return null;
 
       const userToChallenge = await repository.findOne({
-        where: { user: data.user, challenge: data.challenge },
+        where: { user: { id: data.user.id }, challenge: data.challenge },
       });
       return await repository.save({
         ...userToChallenge,
@@ -66,21 +62,58 @@ export class UserToChallengesResolver {
   }
 
   @Authorized()
-  @Mutation(() => UserToChallenge)
+  @Mutation(() => UserToChallenge, { nullable: true })
   async deleteUserToChallenge(
     @Arg("data", () => RemoveUserToChallengeInput)
     data: RemoveUserToChallengeInput,
     @Ctx() context: IContext
   ): Promise<UserToChallenge | null> {
-    const userToChallengeToRemove = await repository.findOne({
-      where: { id: data.userToChallengeId },
-      relations: ["challenge.createdBy"],
-    });
+    try {
+      // Find the user challenge connection with challenge admin and user relation
+      const userToChallengeToRemove = await repository.findOneOrFail({
+        where: { id: data.userToChallengeId },
+        relations: ["challenge.createdBy", "user"],
+      });
 
-    if (userToChallengeToRemove?.challenge?.createdBy.id === context.me.id) {
-      return await repository.remove(userToChallengeToRemove);
+      // The current user is the challenge admin or the owner of the user challenge connection
+      if (
+        userToChallengeToRemove.challenge.createdBy.id === context.me.id ||
+        userToChallengeToRemove.user.id === context.me.id
+      ) {
+        return await repository.remove(userToChallengeToRemove);
+      } else {
+        throw new Error("Your not able to do that");
+      }
+    } catch (error) {
+      console.log(error);
+      return null;
     }
+  }
 
-    return null;
+  @Authorized()
+  @Query(() => [UserToChallenge])
+  async readChallengeLeaderboard(
+    @Arg("challengeId") challengeId: string
+  ): Promise<UserToChallenge[]> {
+    try {
+      const userToChallenges = await repository.find({
+        where: { challenge: { id: challengeId } },
+        relations: ["user"],
+      });
+
+      userToChallenges.forEach((userToChallenge) => {
+        if (!userToChallenge.user) {
+          userToChallenge.user = new User();
+        }
+      });
+
+      userToChallenges.sort((a, b) => b.challengeScore - a.challengeScore);
+
+      return userToChallenges;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
   }
 }
+

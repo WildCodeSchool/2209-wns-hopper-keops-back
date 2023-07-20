@@ -22,7 +22,7 @@ export class UserToChallenge {
   @Field(() => ID)
   id: string;
 
-  @Column({ default: false })
+  @Column({ default: true })
   @Field()
   isAccepted!: boolean;
 
@@ -32,12 +32,14 @@ export class UserToChallenge {
 
   @ManyToOne(() => User, (user) => user.userToChallenges, {
     onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   })
   @Field(() => User)
   user!: User;
 
   @ManyToOne(() => Challenge, (challenge) => challenge.userToChallenges, {
     onUpdate: "CASCADE",
+    onDelete: "CASCADE",
   })
   @Field(() => Challenge)
   challenge!: Challenge;

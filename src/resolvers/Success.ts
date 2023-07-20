@@ -1,5 +1,15 @@
 import dataSource from "../utils";
-import { Arg, Authorized, Ctx, Mutation, Resolver } from "type-graphql";
+
+import {
+  Arg,
+  Authorized,
+  Ctx,
+  ID,
+  Mutation,
+  Query,
+  Resolver,
+} from "type-graphql";
+
 import {
   Success,
   DeleteSuccessInput,
@@ -42,7 +52,7 @@ export class SuccessResolver {
       });
 
       const userToChallenge = await UserToChallengeRepository.findOne({
-        where: { challenge: data.challenge, user: context.me },
+        where: { challenge: data.challenge, user: { id: context.me.id } },
       });
 
       const action = await ActionRepository.findOneBy({ id: data.action.id });
@@ -118,7 +128,7 @@ export class SuccessResolver {
 
       // Get the relation betwen the user and the challenge
       const userToChallenge = await UserToChallengeRepository.findOne({
-        where: { challenge, user },
+        where: { challenge, user: { id: user.id } },
       });
 
       // Update the score of the userToChallenge
@@ -144,14 +154,17 @@ export class SuccessResolver {
   ): Promise<Success | null> {
     try {
       const success = await repository.findOne({
-        where: { id: data.id, user: context.me },
+        where: { id: data.id, user: { id: context.me.id } },
         relations: ["challenge", "action"],
       });
       if (success !== null) {
         console.log("SUCESSSSSSSS", success);
 
         const userToChallenge = await UserToChallengeRepository.findOne({
-          where: { challenge: success.challenge, user: context.me },
+          where: {
+            challenge: { id: success.challenge.id },
+            user: { id: context.me.id },
+          },
         });
 
         const action = await ActionRepository.findOneBy({
@@ -206,7 +219,7 @@ export class SuccessResolver {
 
         // Get the relation betwen the user and the challenge
         const userToChallenge = await UserToChallengeRepository.findOneOrFail({
-          where: { challenge, user },
+          where: { challenge, user: { id: user.id } },
         });
 
         // Look after: if the challenge or a success doesn't existe all the next steps doesn't execute
@@ -235,4 +248,59 @@ export class SuccessResolver {
       return false;
     }
   }
+
+  @Authorized()
+  @Query(() => [Success], { nullable: true })
+  async readMyChallengeSuccesses(
+    @Arg("challengeId", () => ID) challengeId: string,
+    @Ctx() context: IContext
+  ): Promise<Success[] | null> {
+    try {
+      return await repository.find({
+        where: {
+          challenge: { id: challengeId },
+          user: { id: context.me.id },
+        },
+        relations: ["action", "user", "user.userToChallenges"],
+      });
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  }
+
+  // @Authorized()
+  // @Query(() => [Success], { nullable: true })
+  // async readChallengeSuccesses(
+  //   @Arg("challengeId", () => ID) challengeId: string,
+  //   @Ctx() context: IContext
+  // ): Promise<IChallengeSuccesses[] | null> {
+  //   try {
+  //     const successes = await repository.find({
+  //       where: {
+  //         challenge: { id: challengeId },
+  //         user: { id: context.me.id },
+  //       },
+  //       relations: ["actions"],
+  //     });
+
+  //     const filteredSuccesses = {};
+
+  //     // filteredSuccesses = { "4": [{success1}, {success2}], "12": [{success5}, {success12}]}
+
+  //     successes.forEach((success) => {
+  //       const actionId = success.action.id.toString();
+
+  //       if (Object.prototype.hasOwnProperty.call(filteredSuccesses, actionId) && actionId !== null) {
+  //         filteredSuccesses[actionId] = [];
+  //       }
+  //       return filteredSuccesses[actionId].push(success);
+  //     });
+
+  //     return filteredSuccesses;
+  //   } catch (err) {
+  //     console.error(err);
+  //     return null;
+  //   }
+  // }
 }

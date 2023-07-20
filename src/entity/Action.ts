@@ -49,7 +49,9 @@ export class Action {
   @Field(() => User)
   updatedBy: User;
 
-  @ManyToMany(() => Challenge, (challenge) => challenge.actions)
+  @ManyToMany(() => Challenge, (challenge) => challenge.actions, {
+    onDelete: "CASCADE",
+  })
   @Field(() => [Challenge])
   challenges: Challenge[];
 }
